@@ -123,7 +123,7 @@ def render(e, path, out):
         out.append(text(e))
     elif t == "Item":  # élément de liste à puces
         out.append("- " + text(e))
-    elif t == "Rangee":  # ligne de tableau : cellules séparées par « | »
+    elif t.startswith("Rang"):  # ligne de tableau : cellules séparées par « | »
         out.append(" | ".join(text(c) for c in e))
 
     # Blocs techniques (URL, identifiants...) résumés en une ligne.
