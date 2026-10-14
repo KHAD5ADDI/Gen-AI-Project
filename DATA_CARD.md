@@ -7,7 +7,7 @@
 | Jeu de données | Fiches pratiques Service-Public.fr — Particuliers (« vosdroits ») |
 | Producteur | Direction de l'information légale et administrative (DILA) |
 | Accès | data.gouv.fr, archive `vosdroits-latest.zip` |
-| Date de téléchargement | *à compléter (JJ/MM/2026)* |
+| Date de téléchargement | 12/10/2026 |
 | Format | Un fichier XML par page du site (schéma Publication 3.5) |
 | Licence | *à vérifier sur la page data.gouv.fr (Licence Ouverte / Etalab attendue)* |
 
