@@ -1,4 +1,3 @@
-# src/rag_assistant/retrieval.py
 import re
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
@@ -18,7 +17,7 @@ STOPWORDS = set(
     "desquelles desquels dessous dessus deux deuxième deuxièmement devant devers devra different "
     "differentes differents différent différente différentes différents dire directe directement dit "
     "dite dits divers diverse diverses dix dix-huit dixième dix-neuf dix-sept doigt doite doits donc "
-    "dont douze douzième dளுக்கு du duquel durant dès d'un d'une eau effet egale egalement egales "
+    "dont douze douzième d'un d'une eau effet egale egalement egales "
     "eh elle elle-même elles elles-mêmes en encore enfin entre envers environ es est et etait etaient "
     "etais etait etant etc ete etee etees etes etait etant eu eue eues euh eurent eus eusse eussent "
     "eusses eussiez eussions eut eux eux-mêmes exactement excepté extensif extreme extremement f fi "
@@ -52,7 +51,7 @@ STOPWORDS = set(
 def tokenize(text):
     """
     Extrait les tokens alphanumériques en gérant les caractères accentués français
-    et filtre les mots vides[cite: 3].
+    et filtre les mots vides.
     """
     return [
         w for w in re.findall(r"[a-z0-9àâçéèêëîïôûùüÿñæœ]+(?:\.[0-9]+)?%?", text.lower())
@@ -62,8 +61,8 @@ def tokenize(text):
 def rrf(rankings, k=60, depth=10):
     """
     Fusion des rangs réciproques (Reciprocal Rank Fusion). 
-    Chaque liste donne à un chunk 1 / (k + rang) points, avec k = 60[cite: 3].
-    Seuls les premiers `depth` chunks de chaque classement comptent[cite: 3].
+    Chaque liste donne à un chunk 1 / (k + rang) points, avec k = 60.
+    Seuls les premiers `depth` chunks de chaque classement comptent.
     """
     scores = {}
     for ranking in rankings:
@@ -83,7 +82,7 @@ class Retriever:
         self.tokens = [tokenize(c["text"]) for c in self.chunks_list]
         self.bm25 = BM25Okapi(self.tokens) if self.tokens else None
         
-        # Initialisation du Re-ranker (cross-encoder)[cite: 3]
+        # Initialisation du Re-ranker (cross-encoder)
         self.reranker = CrossEncoder(reranker_model)
 
     def dense_search(self, query, top_n=10):
@@ -106,7 +105,7 @@ class Retriever:
         dense_ranking = self.dense_search(query, top_n=depth)
         bm25_ranking = self.bm25_search(query, top_n=depth)
         
-        # Fusion des classements pour obtenir le top combiné[cite: 3]
+        # Fusion des classements pour obtenir le top combiné
         return rrf([dense_ranking, bm25_ranking], k=60, depth=depth)
 
     def retrieve_and_rerank(self, query, top_k=4, pre_k=20):
@@ -117,7 +116,7 @@ class Retriever:
             
         candidates = [self.docstore[cid] for cid in candidate_ids]
         
-        # 2. Re-lecture des chunks combinés avec un cross-encoder[cite: 3]
+        # 2. Re-lecture des chunks combinés avec un cross-encoder
         pairs = [[query, c["text"]] for c in candidates]
         scores = self.reranker.predict(pairs)
         
