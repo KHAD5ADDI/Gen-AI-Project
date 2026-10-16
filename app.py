@@ -1,42 +1,55 @@
 import streamlit as st
-import ollama
-from src.rag_assistant.retrieval import Retriever
+import time
+import os
 from src.rag_assistant.ingest import IngestionPipeline
+from src.rag_assistant.retrieval import HybridRetriever
+from src.rag_assistant.agent import run_agent
+from src.rag_assistant.tracing import Trace
+
+# Pour exécution locale :
+from llama_index.llms.ollama import Ollama
+# Pour exécution Cloud (Hugging Face Spaces) - DÉCOMMENTER :
+# from llama_index.llms.huggingface_api import HuggingFaceInferenceAPI
 
 st.set_page_config(page_title="Assistant Service-Public", layout="wide")
 
 @st.cache_resource
-def load_rag():
-    pipeline = IngestionPipeline(persist_directory="/content/chroma_db_final")
-    return Retriever(ingestion_pipeline=pipeline)
+def init_system():
+    pipeline = IngestionPipeline(persist_directory="./chroma_db_final")
+    retriever = HybridRetriever(ingestion_pipeline=pipeline)
+    
+    # Configuration LOCAL :
+    llm = Ollama(model="llama3.1:8b", request_timeout=120.0)
+    
+    # Configuration CLOUD (Hugging Face) :
+    # hf_token = os.environ.get("HF_TOKEN")
+    # llm = HuggingFaceInferenceAPI(model_name="mistralai/Mistral-7B-Instruct-v0.3", token=hf_token)
+    
+    return retriever, llm
 
-retriever = load_rag()
+retriever, llm = init_system()
 
-st.title("🏛️ Assistant Service-Public.gouv.fr")
-st.markdown("Posez vos questions sur le logement, les papiers d'identité, etc.")
+st.title("🏛️ Assistant Service-Public (Agent RAG)")
 
-query = st.text_input("Votre question :")
+query = st.chat_input("Votre question :")
 
-if st.button("Rechercher") and query:
-    with st.spinner("Recherche des documents pertinents..."):
-        chunks = retriever.retrieve_and_rerank(query, top_k=4)
+if query:
+    st.chat_message("user").write(query)
+    with st.chat_message("assistant"):
+        with st.spinner("Recherche et réflexion en cours..."):
+            trace = Trace()
+            start_time = time.perf_counter()
+            reponse, retrieved_ids = run_agent(llm, retriever, query, trace)
+            latency = time.perf_counter() - start_time
 
-    if not chunks:
-        st.warning("Aucun document trouvé pour répondre à cette question.")
-    else:
-        st.subheader("Sources retrouvées :")
-        for i, chunk in enumerate(chunks, 1):
-            st.info(f"**[{i}] {chunk['title']}** (MàJ: {chunk['date']})\n\n_{chunk['body']}_")
-
-        with st.spinner("Génération de la réponse..."):
-            sources_text = "\n\n".join([f"[{i+1}] {c['text']}" for i, c in enumerate(chunks)])
-            system_prompt = "Tu es un assistant administratif. Réponds en citant les sources entre crochets (ex: [1])."
-            user_prompt = f"Sources:\n{sources_text}\n\nQuestion: {query}"
-
-            response = ollama.chat(
-                model="llama3.1:8b",
-                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}]
-            )
-
-        st.subheader("Réponse de l'Assistant :")
-        st.write(response['message']['content'])
+        if reponse.answerable:
+            st.write(reponse.answer)
+            if reponse.citations:
+                st.caption(f"📚 **Sources :** {', '.join(reponse.citations)}")
+        else:
+            st.warning(reponse.answer)
+            
+        with st.expander("⏱️ Métriques & Traces"):
+            st.write(f"**Latence:** {latency:.2f}s")
+            st.write(f"**Appels d'outils:** {len(trace.tool_calls)}")
+            st.write(f"**Docs consultés:** {retrieved_ids}")
