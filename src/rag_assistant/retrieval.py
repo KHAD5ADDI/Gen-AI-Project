@@ -2,7 +2,6 @@ import re
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
 
-# Liste exhaustive de mots vides (stop words) en français
 STOPWORDS = set(
     "a abord absolument afin ah ai aie aient aies ailleurs ainsi ait allaient allo allons allô alors "
     "anterieur anterieure anterieures ap apres après as assez attendu au aucucun aucune aujourd "
@@ -48,78 +47,70 @@ STOPWORDS = set(
     "ö û ü ù".split()
 )
 
-def tokenize(text):
-    """
-    Extrait les tokens alphanumériques en gérant les caractères accentués français
-    et filtre les mots vides.
-    """
+def tokenize_fr(text):
     return [
         w for w in re.findall(r"[a-z0-9àâçéèêëîïôûùüÿñæœ]+(?:\.[0-9]+)?%?", text.lower())
         if w not in STOPWORDS
     ]
 
-def rrf(rankings, k=60, depth=10):
+def rrf(rankings, k=60, depth=30):
     """
-    Fusion des rangs réciproques (Reciprocal Rank Fusion). 
-    Chaque liste donne à un chunk 1 / (k + rang) points, avec k = 60.
-    Seuls les premiers `depth` chunks de chaque classement comptent.
+    Fusion des rangs (RRF).
+    La profondeur (depth) est augmentée à 30 pour s'adapter à la taille de la base[cite: 3].
     """
     scores = {}
     for ranking in rankings:
         for rank, chunk_id in enumerate(ranking[:depth], start=1):
             scores[chunk_id] = scores.get(chunk_id, 0.0) + (1.0 / (k + rank))
-            
+
     return sorted(scores.keys(), key=lambda x: scores[x], reverse=True)
 
 class Retriever:
-    def __init__(self, ingestion_pipeline, reranker_model="cross-encoder/ms-marco-MiniLM-L-6-v2"):
+    # Remplacement par un modèle cross-encoder multilingue performant sur le français
+    def __init__(self, ingestion_pipeline, reranker_model="cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"):
         self.collection = ingestion_pipeline.collection
         self.embedder = ingestion_pipeline.embedder
         self.docstore = ingestion_pipeline.docstore
-        
-        # Initialisation du moteur BM25 avec les tokens
+
         self.chunks_list = list(self.docstore.values())
-        self.tokens = [tokenize(c["text"]) for c in self.chunks_list]
+        self.tokens = [tokenize_fr(c["text"]) for c in self.chunks_list]
         self.bm25 = BM25Okapi(self.tokens) if self.tokens else None
-        
-        # Initialisation du Re-ranker (cross-encoder)
+
         self.reranker = CrossEncoder(reranker_model)
 
-    def dense_search(self, query, top_n=10):
-        query_vector = self.embedder.encode_chunks([query])
+    def dense_search(self, query, top_n=30):
+        # On utilise encode_query pour ajouter le préfixe "query: " propre au modèle E5
+        query_vector = self.embedder.encode_query(query)
         results = self.collection.query(
-            query_embeddings=query_vector,
+            query_embeddings=[query_vector],
             n_results=top_n
         )
         return results['ids'][0]
 
-    def bm25_search(self, query, top_n=10):
+    def bm25_search(self, query, top_n=30):
         if not self.bm25: return []
-        query_tokens = tokenize(query)
+        query_tokens = tokenize_fr(query)
         scores = self.bm25.get_scores(query_tokens)
-        
+
         ranked_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
         return [self.chunks_list[i]["chunk_id"] for i in ranked_indices[:top_n]]
 
-    def hybrid_search(self, query, depth=10):
+    def hybrid_search(self, query, depth=30):
         dense_ranking = self.dense_search(query, top_n=depth)
         bm25_ranking = self.bm25_search(query, top_n=depth)
-        
-        # Fusion des classements pour obtenir le top combiné
+
         return rrf([dense_ranking, bm25_ranking], k=60, depth=depth)
 
-    def retrieve_and_rerank(self, query, top_k=4, pre_k=20):
-        # 1. Récupération des candidats hybrides
+    def retrieve_and_rerank(self, query, top_k=4, pre_k=30):
         candidate_ids = self.hybrid_search(query, depth=pre_k)
         if not candidate_ids:
             return []
-            
+
         candidates = [self.docstore[cid] for cid in candidate_ids]
-        
-        # 2. Re-lecture des chunks combinés avec un cross-encoder
+
+        # Re-ranking via le Cross-Encoder[cite: 3]
         pairs = [[query, c["text"]] for c in candidates]
         scores = self.reranker.predict(pairs)
-        
-        # Tri final par score de re-ranking
+
         ranked_candidates = [c for _, c in sorted(zip(scores, candidates), key=lambda x: x[0], reverse=True)]
         return ranked_candidates[:top_k]
