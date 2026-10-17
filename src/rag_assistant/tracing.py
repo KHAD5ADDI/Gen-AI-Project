@@ -10,5 +10,5 @@ class Trace:
 
 def chat(llm, messages, trace, purpose="default", tools=None):
     if tools:
-        return llm.chat_with_tools(tools, chat_history=messages[:-1], message=messages[-1])
+        return llm.chat_with_tools(tools, chat_history=messages)
     return llm.chat(messages)
