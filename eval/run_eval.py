@@ -1,7 +1,9 @@
 import json
 import time
 import argparse
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from llama_index.llms.ollama import Ollama
 from src.rag_assistant.ingest import IngestionPipeline
 from src.rag_assistant.retrieval import HybridRetriever
@@ -19,7 +21,7 @@ def main():
     llm = Ollama(model="llama3.1:8b", request_timeout=120.0)
 
     with open(args.questions, "r", encoding="utf-8") as f:
-        questions = [json.loads(line) for line in f]
+        questions = [json.loads(line) for line in f if line.strip()]
 
     Path(args.out).mkdir(parents=True, exist_ok=True)
     out_file = Path(args.out) / "results.jsonl"
