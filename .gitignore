@@ -1,0 +1,6 @@
+.env
+.venv/
+chroma_db_final/
+eval/results_*.jsonl
+eval/summary_*.json
+__pycache__/
