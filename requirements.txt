@@ -7,4 +7,5 @@ rank-bm25==0.2.2
 llama-index-core
 llama-index-llms-ollama
 llama-index-llms-huggingface-api
+llama-index-llms-openai
 pydantic
