@@ -23,10 +23,10 @@ import argparse
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from llama_index.llms.ollama import Ollama
 from src.rag_assistant.ingest import IngestionPipeline
 from src.rag_assistant.retrieval import HybridRetriever
 from src.rag_assistant.agent import run_agent
+from src.rag_assistant.llm import get_llm, provider_of
 from src.rag_assistant.tracing import Trace
 
 def main():
@@ -37,7 +37,9 @@ def main():
 
     pipeline = IngestionPipeline(persist_directory="./chroma_db_final")
     retriever = HybridRetriever(ingestion_pipeline=pipeline)
-    llm = Ollama(model="llama3.1:8b", request_timeout=120.0)
+    llm = get_llm()  # modèle choisi dans le .env (LLM_PROVIDER), Ollama par défaut
+    provider, model = provider_of(llm), llm.model
+    print(f"Modèle : {provider} / {model}")
 
     with open(args.questions, "r", encoding="utf-8") as f:
         questions = [json.loads(line) for line in f if line.strip()]
@@ -47,12 +49,12 @@ def main():
 
     with open(out_file, "w", encoding="utf-8") as f_out:
         for q in questions:
-            trace = Trace()
+            trace = Trace(provider=provider, model=model)
             start_time = time.perf_counter()
-            
             reponse, retrieved_ids = run_agent(llm, retriever, q["question"], trace)
             latency = time.perf_counter() - start_time
-            
+            s = trace.summary()
+
             result = {
                 "id": q.get("id", "unknown"),
                 "question": q["question"],
@@ -60,13 +62,24 @@ def main():
                 "generated_answer": reponse.answer,
                 "cited_sources": reponse.citations,
                 "retrieved_document_IDs": retrieved_ids,
+                "answerable": reponse.answerable,
+                "provider": provider,
+                "model": model,
+                "tokens_in": s["tokens_in"],
+                "tokens_out": s["tokens_out"],
                 "latency_sec": round(latency, 2),
-                "tool_calls": len(trace.tool_calls),
-                "answerable": reponse.answerable
+                "cost_usd": s["cost_usd"],
+                "n_llm_calls": s["n_llm_calls"],
+                "n_tool_calls": len(s["tool_calls"]),
+                "stop_reason": s["stop_reason"],
+                "tool_calls": s["tool_calls"],  # détail : outil, arguments, durée, taille du résultat
+                "llm_calls": s["llm_calls"],  # détail par appel : rôle, tokens, durée, raison d'arrêt
+                "errors": s["errors"],
             }
-            
             f_out.write(json.dumps(result, ensure_ascii=False) + "\n")
-            print(f"Évalué: {result['id']} en {latency:.1f}s")
+            f_out.flush()  # une ligne par question, même si le run est interrompu
+            print(f"Évalué: {result['id']} en {latency:.1f}s | {s['tokens_in']} tokens in, "
+                  f"{s['tokens_out']} out | {s['n_llm_calls']} appels LLM | {s['cost_usd']:.4f} USD")
 
 if __name__ == "__main__":
     main()
