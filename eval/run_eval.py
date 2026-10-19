@@ -2,10 +2,6 @@
 
     uv run python eval/run_eval.py --questions eval/golden.jsonl --out eval/
 
-Écrit eval/results.jsonl (une ligne par question : réponse, sources citées, documents
-récupérés, tokens, latence, appels d'outils, raison d'arrêt) et eval/summary.json
-(métriques agrégées et configuration utilisée).
-
 Golden set : eval/golden.jsonl, 40 questions au format du sujet (id, question, answer, gold_docs)
 
 Questions     Type                   Nombre  Ce qui est testé
