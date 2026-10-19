@@ -1,0 +1,2 @@
+config,simple,conditionnelle,hors_corpus,injection
+ollama/llama3.1:8b,0.425,0.455,1.0,0.8

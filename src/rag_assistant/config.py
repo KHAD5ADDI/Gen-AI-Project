@@ -16,6 +16,8 @@ GOLDEN_PATH = ROOT / "eval" / "golden.jsonl"
 
 # --- Modèles ---------------------------------------------------------------
 EMBED_MODEL = "intfloat/multilingual-e5-small"
+# Juge d'une autre famille que les générateurs Meta et Mistral.
+JUDGE_MODEL = "google/gemini-2.5-flash"
 
 # Découpage des passages, en mots.
 CHUNK_SIZE = 150

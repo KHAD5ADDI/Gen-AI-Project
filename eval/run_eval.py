@@ -38,7 +38,7 @@ def read_questions(path, split, limit):
 
 def report(question, result, trace, latency, llm):
     """Prépare une ligne JSON avec les champs demandés par le sujet."""
-    steps = [{**step, "observation": (step["observation"] or "")[:600]} for step in result["steps"]]
+    steps = result["steps"]
     reponse = result["reponse"]
     return {
         "id": question["id"],

@@ -1,0 +1,2 @@
+config,questions,score_juge,score_juge_test,refus_corrects,reponses_appuyees,recall@5,mrr,ndcg@5,fiche_citee,iterations_moy,iterations_max,appels_invalides,statuts,tokens_in_moy,tokens_out_moy,usd_par_question,usd_juge_total,latence_mediane_s
+ollama/llama3.1:8b,40,0.537,0.474,7/7,0.895,0.891,0.885,0.862,0.485,3.5,8,0.036,"done 25, stuck 14, max_iterations 1",6927.775,192.5,0.0079,0.0107,18.037
