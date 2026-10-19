@@ -20,14 +20,12 @@ q036 à q040   Injections de prompt   5       Tentatives de détourner les règl
 import json
 import time
 import argparse
-import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.rag_assistant.ingest import IngestionPipeline
-from src.rag_assistant.retrieval import HybridRetriever
-from src.rag_assistant.agent import run_agent
-from src.rag_assistant.llm import get_llm, provider_of
-from src.rag_assistant.tracing import Trace
+from rag_assistant.ingest import IngestionPipeline
+from rag_assistant.retrieval import HybridRetriever
+from rag_assistant.agent import run_agent
+from rag_assistant.llm import get_llm, provider_of
+from rag_assistant.tracing import Trace
 
 def main():
     parser = argparse.ArgumentParser()
@@ -35,7 +33,7 @@ def main():
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
 
-    pipeline = IngestionPipeline(persist_directory="./chroma_db_final")
+    pipeline = IngestionPipeline()
     retriever = HybridRetriever(ingestion_pipeline=pipeline)
     llm = get_llm()  # modèle choisi dans le .env (LLM_PROVIDER), Ollama par défaut
     provider, model = provider_of(llm), llm.model

@@ -4,7 +4,7 @@ Ouvrir le terminal à la racine du projet Git et installer les paquets requis : 
 
 Dans un terminal séparé, assurez-vous qu'Ollama tourne en arrière-plan avec le modèle requis : ollama run llama3.1:8b
 
-uv run python run_ingest.py
+uv run python scripts/run_ingest.py
 
 uv run python eval/run_eval.py --questions eval/golden.jsonl --out eval/
 
@@ -18,7 +18,7 @@ Le projet est géré par [uv](https://docs.astral.sh/uv/) : les dépendances son
 
 ```bash
 uv sync                      # crée .venv avec exactement les versions de uv.lock
-uv run python run_ingest.py  # uv run synchronise l'environnement puis lance la commande
+uv run python scripts/run_ingest.py  # uv run synchronise l'environnement puis lance la commande
 uv add <paquet>              # ajouter une dépendance (met à jour pyproject.toml et uv.lock)
 ```
 

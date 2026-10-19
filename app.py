@@ -1,13 +1,13 @@
 import streamlit as st
 import time
 import os
-from src.rag_assistant.ingest import IngestionPipeline
-from src.rag_assistant.retrieval import HybridRetriever
-from src.rag_assistant.agent import run_agent
-from src.rag_assistant.tracing import Trace
+from rag_assistant.ingest import IngestionPipeline
+from rag_assistant.retrieval import HybridRetriever
+from rag_assistant.agent import run_agent
+from rag_assistant.tracing import Trace
 
 # Pour exécution locale :
-from src.rag_assistant.llm import get_llm
+from rag_assistant.llm import get_llm
 # Pour exécution Cloud (Hugging Face Spaces) - DÉCOMMENTER :
 # from llama_index.llms.huggingface_api import HuggingFaceInferenceAPI
 

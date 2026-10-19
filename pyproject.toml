@@ -1,5 +1,5 @@
 [project]
-name = "gen-ai-project"
+name = "rag-assistant"
 version = "0.1.0"
 description = "Assistant RAG et agent sur les fiches pratiques Service-Public (Logement, Papiers-Citoyenneté)"
 readme = "README.md"
@@ -20,4 +20,23 @@ dependencies = [
     "rank-bm25>=0.2.2",
     "sentence-transformers>=6.1.0",
     "streamlit>=1.66.0",
+]
+
+# Le code est un vrai package Python (src/rag_assistant) : uv sync l'installe en mode éditable,
+# donc « from rag_assistant import ... » marche depuis n'importe quel dossier, sans sys.path.
+[build-system]
+requires = ["uv_build>=0.12.24,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.17.1",
 ]

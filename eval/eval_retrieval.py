@@ -15,11 +15,9 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
-
-from src.rag_assistant.ingest import IngestionPipeline
-from src.rag_assistant.retrieval import HybridRetriever, rrf
+from rag_assistant.config import ROOT
+from rag_assistant.ingest import IngestionPipeline
+from rag_assistant.retrieval import HybridRetriever, rrf
 
 PRE_K = 30  # même valeur que dans HybridRetriever.search
 
@@ -63,7 +61,7 @@ def main():
             for r in (json.loads(l) for l in f if l.strip()):
                 agent[r["id"]] = r
 
-    pipeline = IngestionPipeline(persist_directory=str(ROOT / "chroma_db_final"))
+    pipeline = IngestionPipeline()
     if pipeline.collection.count() == 0:
         sys.exit("Index vide : lance d'abord `uv run python run_ingest.py`.")
     ret = HybridRetriever(ingestion_pipeline=pipeline)

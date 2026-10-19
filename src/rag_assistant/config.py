@@ -1,5 +1,23 @@
-"""Prix des modèles, en USD par million de tokens : (entrée, sortie)."""
+"""Réglages du projet : chemins et paramètres partagés, en un seul endroit.
 
+Les chemins partent de la racine du dépôt (et non du dossier courant) : les scripts
+marchent quel que soit l'endroit d'où on les lance.
+"""
+from pathlib import Path
+
+# --- Chemins ---------------------------------------------------------------
+ROOT = Path(__file__).resolve().parents[2]  # src/rag_assistant/config.py -> racine du dépôt
+RAW_DIR = ROOT / "data" / "raw"
+RAW_ZIP = RAW_DIR / "vosdroits-latest.zip"  # archive DILA téléchargée sur data.gouv.fr
+CORPUS_PATH = RAW_DIR / "corpus.parquet"  # sortie de scripts/prepare_docs.py
+CHROMA_DIR = ROOT / "chroma_db_final"  # index vectoriel (non versionné)
+COLLECTION = "rag_sp_documents"
+GOLDEN_PATH = ROOT / "eval" / "golden.jsonl"
+
+# --- Modèles ---------------------------------------------------------------
+EMBED_MODEL = "intfloat/multilingual-e5-small"
+
+# --- Prix, en USD par million de tokens : (entrée, sortie) --------------------
 # Modèles locaux (Ollama) : gratuits en réalité. Comme dans le lab 06, on les compte « comme si »
 # les mêmes tokens étaient payés au tarif de Claude Haiku 4.5 (1 USD en entrée, 5 USD en sortie),
 # pour pouvoir comparer le coût d'une configuration locale et d'une configuration API.
