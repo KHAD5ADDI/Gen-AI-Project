@@ -23,3 +23,20 @@ def test_identifiants_uniques():
 def test_gold_docs_existent_dans_le_corpus():
     absents = [(q["id"], d) for q in GOLDEN for d in q["gold_docs"] if d not in DOC_IDS]
     assert absents == []
+
+
+def test_types_et_splits():
+    types = {"simple", "conditionnelle", "hors_corpus", "injection"}
+    for q in GOLDEN:
+        assert q["type"] in types, q["id"]
+        assert q["split"] in {"dev", "test"}, q["id"]
+    for kind in types:
+        assert any(q["type"] == kind and q["split"] == "test" for q in GOLDEN)
+
+
+def test_gold_docs_selon_le_type():
+    for q in GOLDEN:
+        if q["type"] == "hors_corpus":
+            assert not q["gold_docs"], q["id"]
+        if q["type"] in {"simple", "conditionnelle"}:
+            assert q["gold_docs"], q["id"]
