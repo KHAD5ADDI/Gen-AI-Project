@@ -1,49 +1,97 @@
-"""Création du LLM : Ollama (local) ou OpenRouter (API), choisi par variables d'environnement (.env).
-
-    LLM_PROVIDER        ollama (défaut) ou openrouter   <- seule ligne à changer pour basculer
-    OLLAMA_MODEL        modèle Ollama      (défaut : llama3.1:8b)
-    OPENROUTER_MODEL    modèle OpenRouter  (défaut : mistralai/mistral-small-2603)
-    OPENROUTER_API_KEY  clé OpenRouter (seulement si LLM_PROVIDER=openrouter)
-    LLM_NUM_CTX         fenêtre de contexte Ollama, tokens (défaut : 8192)
-    LLM_TIMEOUT         délai max par appel, secondes (défaut : 300)
-
-Température 0 partout, comme dans les labs : à question égale, réponse (presque) identique.
+"""LLM configuré par .env : LLM_PROVIDER, OLLAMA_MODEL, OPENROUTER_MODEL,
+OPENROUTER_API_KEY, LLM_NUM_CTX et LLM_TIMEOUT.
 """
+
 import os
+import time
 
+import ollama
 from dotenv import load_dotenv
+from openai import OpenAI
 
-load_dotenv()  # lit le fichier .env à la racine du projet, s'il existe
+from rag_assistant.schemas import Usage
 
-DEFAULT_MODELS = {"ollama": "llama3.1:8b", "openrouter": "mistralai/mistral-small-2603"}
-OPENROUTER_URL = "https://openrouter.ai/api/v1"
+load_dotenv()
+
+LLM_NUM_CTX = int(os.getenv("LLM_NUM_CTX", "8192"))
+LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "300"))
 
 
-def get_llm(model: str | None = None, provider: str | None = None):
-    provider = (provider or os.environ.get("LLM_PROVIDER") or "ollama").lower()
-    if provider not in DEFAULT_MODELS:
-        raise ValueError(f"LLM_PROVIDER inconnu : {provider!r} (attendu : ollama ou openrouter)")
-    model = model or os.environ.get(f"{provider.upper()}_MODEL") or DEFAULT_MODELS[provider]
-    timeout = float(os.environ.get("LLM_TIMEOUT", 300))
+class OllamaLLM:
+    """Modèle local appelé avec le protocole du lab 06."""
 
-    if provider == "openrouter":
-        key = os.environ.get("OPENROUTER_API_KEY")
+    def __init__(self, name):
+        self.provider = "ollama"
+        self.name = name
+        self.client = ollama.Client(timeout=LLM_TIMEOUT)
+
+    def _chat(self, system, user, max_new_tokens, stop):
+        options = {"temperature": 0, "num_predict": max_new_tokens, "num_ctx": LLM_NUM_CTX}
+        if stop:
+            options["stop"] = ["Observation:"]
+        # Sans num_ctx, Ollama utilise une fenêtre trop petite et coupe le prompt en silence.
+        start = time.perf_counter()
+        response = self.client.chat(
+            model=self.name,
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+            options=options,
+        )
+        seconds = time.perf_counter() - start
+        content = response.message.content or ""
+        text = content.split("Observation:")[0].strip() if stop else content.strip()
+        return text, Usage(response.prompt_eval_count or 0, response.eval_count or 0, seconds)
+
+    def next_step(self, system, user, max_new_tokens=300):
+        """Produit la prochaine action ReAct."""
+        return self._chat(system, user, max_new_tokens, stop=True)
+
+    def generate(self, system, user, max_new_tokens=500):
+        """Produit un texte pour le pipeline RAG classique."""
+        return self._chat(system, user, max_new_tokens, stop=False)
+
+
+class OpenRouterLLM:
+    """Modèle API appelé avec le protocole OpenAI."""
+
+    def __init__(self, name):
+        key = os.getenv("OPENROUTER_API_KEY")
         if not key:
-            raise RuntimeError("OPENROUTER_API_KEY n'est pas définie (dans le .env ou le terminal).")
-        from llama_index.llms.openai_like import OpenAILike
-        # OpenRouter parle le même protocole que l'API OpenAI : on change juste l'adresse.
-        return OpenAILike(model=model, api_base=OPENROUTER_URL, api_key=key, temperature=0,
-                          timeout=timeout, max_retries=3, context_window=128_000,
-                          is_chat_model=True, is_function_calling_model=True)
+            raise RuntimeError("OPENROUTER_API_KEY manque dans l'environnement ou le fichier .env.")
+        self.provider = "openrouter"
+        self.name = name
+        self.client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=key, timeout=LLM_TIMEOUT)
 
-    from llama_index.llms.ollama import Ollama
-    num_ctx = int(os.environ.get("LLM_NUM_CTX", 8192))
-    # Sans num_ctx explicite, llama-index envoie la fenêtre maximale du modèle (131 072 tokens) :
-    # sur 16 Go de RAM, le modèle déborde du GPU et chaque appel dépasse le délai.
-    return Ollama(model=model, temperature=0, request_timeout=timeout, context_window=num_ctx,
-                  additional_kwargs={"num_ctx": num_ctx})
+    def _chat(self, system, user, max_new_tokens, stop):
+        kwargs = {
+            "model": self.name,
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            "temperature": 0,
+            "max_tokens": max_new_tokens,
+        }
+        if stop:
+            kwargs["stop"] = ["Observation:"]
+        start = time.perf_counter()
+        response = self.client.chat.completions.create(**kwargs)
+        seconds = time.perf_counter() - start
+        content = response.choices[0].message.content or ""
+        text = content.split("Observation:")[0].strip() if stop else content.strip()
+        usage = response.usage
+        return text, Usage(usage.prompt_tokens if usage else 0, usage.completion_tokens if usage else 0, seconds)
+
+    def next_step(self, system, user, max_new_tokens=300):
+        """Produit la prochaine action ReAct."""
+        return self._chat(system, user, max_new_tokens, stop=True)
+
+    def generate(self, system, user, max_new_tokens=500):
+        """Produit un texte pour le pipeline RAG classique."""
+        return self._chat(system, user, max_new_tokens, stop=False)
 
 
-def provider_of(llm) -> str:
-    """Nom du fournisseur d'un LLM créé par get_llm (pour le traçage et le calcul du coût)."""
-    return "ollama" if type(llm).__name__ == "Ollama" else "openrouter"
+def get_llm(provider=None, model=None):
+    """Choisit le modèle selon les arguments ou le fichier .env."""
+    provider = (provider or os.getenv("LLM_PROVIDER") or "ollama").lower()
+    if provider == "ollama":
+        return OllamaLLM(model or os.getenv("OLLAMA_MODEL") or "llama3.1:8b")
+    if provider == "openrouter":
+        return OpenRouterLLM(model or os.getenv("OPENROUTER_MODEL") or "mistralai/mistral-small-2603")
+    raise ValueError(f"Fournisseur LLM inconnu : {provider}")

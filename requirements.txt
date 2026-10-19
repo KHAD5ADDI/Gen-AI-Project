@@ -303,11 +303,15 @@ nvidia-nvtx==13.0.85 ; (platform_machine == 'aarch64' and sys_platform == 'linux
 oauthlib==4.0.0
     # via requests-oauthlib
 ollama==0.6.3
-    # via llama-index-llms-ollama
+    # via
+    #   llama-index-llms-ollama
+    #   rag-assistant
 onnxruntime==1.31.0
     # via chromadb
 openai==2.54.0
-    # via llama-index-llms-openai
+    # via
+    #   llama-index-llms-openai
+    #   rag-assistant
 opentelemetry-api==1.45.1
     # via
     #   chromadb
