@@ -12,6 +12,18 @@ uv run streamlit run app.py
 
 enjoy !
 
+## Environnement (uv)
+
+Le projet est géré par [uv](https://docs.astral.sh/uv/) : les dépendances sont déclarées dans `pyproject.toml` et leurs versions exactes figées dans `uv.lock` (à committer). Python 3.11 (fichier `.python-version`).
+
+```bash
+uv sync                      # crée .venv avec exactement les versions de uv.lock
+uv run python run_ingest.py  # uv run synchronise l'environnement puis lance la commande
+uv add <paquet>              # ajouter une dépendance (met à jour pyproject.toml et uv.lock)
+```
+
+`requirements.txt` est généré depuis `uv.lock` (`uv export`) pour ceux qui utilisent pip : ne pas le modifier à la main.
+
 ## Modèles et coût
 
 Le LLM se choisit dans le fichier `.env` (copier `.env.example`), sans toucher au code : `LLM_PROVIDER=ollama` (défaut, local) ou `LLM_PROVIDER=openrouter` (API, clé `OPENROUTER_API_KEY`). Température 0 dans tous les cas.
