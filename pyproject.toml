@@ -3,22 +3,21 @@ name = "gen-ai-project"
 version = "0.1.0"
 description = "Assistant RAG et agent sur les fiches pratiques Service-Public (Logement, Papiers-Citoyenneté)"
 readme = "README.md"
-# numpy<2 et pyarrow 15 n'ont pas de wheels pour Python 3.13 et plus
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11"
 # llama-index casse souvent son API entre versions mineures : on reste sur la mineure testée
 dependencies = [
-    "chromadb==0.4.24",
+    "chromadb>=1.5.9",
     "llama-index-core>=0.14.25,<0.15",
     "llama-index-llms-huggingface-api>=0.8.0,<0.9",
     "llama-index-llms-ollama>=0.11.0,<0.12",
     "llama-index-llms-openai>=0.8.3,<0.9",
     "llama-index-llms-openai-like>=0.8.1,<0.9",
-    "numpy<2",
-    "pandas==2.2.1",
-    "pyarrow==15.0.2",
+    "numpy>=2.4.6",
+    "pandas>=3.0.6",
+    "pyarrow>=26.0.0",
     "pydantic>=2.14.1",
     "python-dotenv>=1.2.4",
-    "rank-bm25==0.2.2",
-    "sentence-transformers==2.5.1",
-    "streamlit==1.32.0",
+    "rank-bm25>=0.2.2",
+    "sentence-transformers>=6.1.0",
+    "streamlit>=1.66.0",
 ]
