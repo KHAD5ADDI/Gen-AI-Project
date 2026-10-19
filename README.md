@@ -1,13 +1,21 @@
-# Gen-AI-Project
+﻿# RAG assistant
 
-Ouvrir le terminal à la racine du projet Git et installer les paquets requis : uv pip install -r requirements.txt
+Assistant de questions-réponses sur un corpus de documents publics de data.gouv.fr.
 
-Dans un terminal séparé, assurez-vous qu'Ollama tourne en arrière-plan avec le modèle requis : ollama run llama3.1:8b
+## Installation
 
-uv run python run_ingest.py
+    uv sync
+    cp .env.example .env
 
-uv run python eval/run_eval.py --questions eval/golden.jsonl --out eval/
+Compléter ensuite le fichier `.env` (modèles, clés API).
 
-uv run streamlit run app.py
+## Évaluation
 
-enjoy !
+    uv run python eval/run_eval.py --questions eval/golden.jsonl --out eval/
+
+## Modèles
+
+| Rôle | Modèle | Version |
+|---|---|---|
+| Embedding | | |
+| LLM | | |

@@ -1,6 +1,11 @@
-.env
 .venv/
-chroma_db_final/
-eval/results_*.jsonl
-eval/summary_*.json
+.env
+storage/
+data/raw/*
+!data/raw/.gitkeep
 __pycache__/
+
+.venv/
+storage/
+data/raw/
+eval/runs/
