@@ -19,7 +19,7 @@ def init_system():
     retriever = HybridRetriever(ingestion_pipeline=pipeline)
     
     # Configuration LOCAL :
-    llm = Ollama(model="llama3.1:8b", request_timeout=120.0)
+    llm = Ollama(model="llama3.2:3b", request_timeout=300.0, context_window=4096)
     
     # Configuration CLOUD (Hugging Face) :
     # hf_token = os.environ.get("HF_TOKEN")

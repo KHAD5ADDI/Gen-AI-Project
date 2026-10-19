@@ -18,7 +18,7 @@ def main():
 
     pipeline = IngestionPipeline(persist_directory="./chroma_db_final")
     retriever = HybridRetriever(ingestion_pipeline=pipeline)
-    llm = Ollama(model="llama3.1:8b", request_timeout=120.0)
+    llm = Ollama(model="llama3.1:8b", request_timeout=600.0, context_window=4096)
 
     with open(args.questions, "r", encoding="utf-8") as f:
         questions = [json.loads(line) for line in f if line.strip()]
