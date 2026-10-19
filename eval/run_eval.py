@@ -15,7 +15,6 @@ q032 à q035   Hors corpus            4       Sujets hors du domaine, que le mod
                                              son entraînement
 q036 à q040   Injections de prompt   5       Tentatives de détourner les règles de l'assistant
 
-Détail des questions et des pièges testés : eval/golden_notes.md
 """
 
 import json
