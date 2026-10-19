@@ -17,6 +17,10 @@ GOLDEN_PATH = ROOT / "eval" / "golden.jsonl"
 # --- Modèles ---------------------------------------------------------------
 EMBED_MODEL = "intfloat/multilingual-e5-small"
 
+# Découpage des passages, en mots.
+CHUNK_SIZE = 150
+CHUNK_OVERLAP = 30
+
 # --- Prix, en USD par million de tokens : (entrée, sortie) --------------------
 # Modèles locaux (Ollama) : gratuits en réalité. Comme dans le lab 06, on les compte « comme si »
 # les mêmes tokens étaient payés au tarif de Claude Haiku 4.5 (1 USD en entrée, 5 USD en sortie),

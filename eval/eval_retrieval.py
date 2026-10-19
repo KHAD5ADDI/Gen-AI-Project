@@ -4,7 +4,7 @@ Configurations : dense, BM25, hybride RRF et hybride + rerank.
 Les questions sans gold_docs sont ignorées. Les métriques sont calculées par fiche
 sur les 30 passages utilisés par le pipeline.
 
-Usage : uv run python eval/eval_retrieval.py [--golden eval/golden.jsonl] [--out eval/]
+Usage : uv run python eval/eval_retrieval.py [--index DIR] [--golden eval/golden.jsonl] [--out eval/]
 Sorties : retrieval_results.jsonl, retrieval_summary.csv, retrieval_summary.md.
 """
 
@@ -16,7 +16,7 @@ from pathlib import Path
 import pandas as pd
 
 from metrics import fiches, mrr, ndcg_at_k, recall_at_k  # lancé par son chemin : eval/ est dans sys.path
-from rag_assistant.config import GOLDEN_PATH
+from rag_assistant.config import CHROMA_DIR, GOLDEN_PATH
 from rag_assistant.ingest import IngestionPipeline
 from rag_assistant.retrieval import HybridRetriever, rrf
 
@@ -92,12 +92,13 @@ def tableau(summary):
 def main():
     """Évalue la recherche et écrit les résultats dans le dossier choisi."""
     parser = argparse.ArgumentParser()
+    parser.add_argument("--index", type=Path, default=CHROMA_DIR)
     parser.add_argument("--golden", type=Path, default=GOLDEN_PATH)
     parser.add_argument("--out", type=Path, default=Path(__file__).resolve().parent)
     args = parser.parse_args()
 
     questions = charger_questions(args.golden)
-    pipeline = IngestionPipeline()
+    pipeline = IngestionPipeline(persist_directory=args.index)
     ret = HybridRetriever(ingestion_pipeline=pipeline)
     rows, misses = evaluer(questions, ret)
     summary = resume(rows)
