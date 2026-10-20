@@ -1,15 +1,15 @@
-# Data card — Corpus Service-Public « Logement » et « Papiers - Citoyenneté - Élections »
+# Data card : corpus Service-Public « Logement » et « Papiers - Citoyenneté - Élections »
 
 ## Source
 
 | | |
 |---|---|
-| Jeu de données | Fiches pratiques Service-Public.fr — Particuliers (« vosdroits ») |
+| Jeu de données | Fiches pratiques Service-Public.fr, rubrique Particuliers (« vosdroits ») |
 | Producteur | Direction de l'information légale et administrative (DILA) |
 | Accès | data.gouv.fr, archive `vosdroits-latest.zip` |
 | Date de téléchargement | 12/10/2026 |
 | Format | Un fichier XML par page du site (schéma Publication 3.5) |
-| Licence | *à vérifier sur la page data.gouv.fr (Licence Ouverte / Etalab attendue)* |
+| Licence | Licence Ouverte / Open Licence version 2.0 (page du jeu de données sur data.gouv.fr) : réutilisation libre, en citant « Service-Public.gouv.fr / DILA » et la date de mise à jour |
 
 L'archive contient **5 573 fichiers** :
 
@@ -123,13 +123,14 @@ Champs produits dans `data/raw/corpus.parquet` : `doc_id`, `title`, `text`, `the
 | Champs vides (titre, texte, date, URL) | Aucun |
 | Balises XML restantes dans le texte | Aucune |
 | Titres en double | Aucun |
-| Fiches contenant des tableaux | *à compléter* |
+| Fiches contenant au moins un tableau | 75 sur 526 (14 %) : 50 Logement, 25 Papiers |
 | Relecture manuelle de fiches comparées au site (dont F23263, F36798, F1940) | Conformes |
 
 Remarques issues des contrôles :
 
 - La fiche F23263 (taxe d'aménagement) a une URL sur `entreprendre.service-public.gouv.fr` : elle est partagée avec la rubrique Entreprendre du site.
 - 24 titres de section sont suivis d'un paragraphe qui reprend leur intitulé : ce doublon vient de la fiche d'origine elle-même (libellé d'un lien), il est inoffensif.
+- `scripts/check_corpus.py` signale 2 « ERREUR » attendues, qui ne sont pas des défauts : l'URL de F23263 (ci-dessus) et 16 titres de section répétés, qui sont le même sous-titre placé sous deux situations différentes (par exemple « Caf > Réponses à 10 questions clés sur l'APL » et « MSA > Réponses à 10 questions clés sur l'APL »). Il signale aussi, à titre d'avertissement, 1 400 phrases terminées par « : » suivies d'un titre (287 fiches) : c'est la structure d'origine des fiches (« cela dépend de votre situation : » puis une section par situation), et la couverture du texte à 100 % confirme qu'aucun contenu n'est perdu.
 
 ## Limites et risques
 
@@ -144,13 +145,59 @@ Remarques issues des contrôles :
 ## Reproduction
 
 ```bash
-uv run python prepare_docs.py --list   # nombre de fiches par thème dans l'archive
-uv run python prepare_docs.py          # génère data/raw/corpus.parquet
-uv run python check_coverage.py        # couverture du texte (100 % attendu)
-uv run python check_corpus.py          # contrôles de forme
-uv run python inspect_corpus.py        # statistiques de cette data card
+uv run python scripts/prepare_docs.py --list   # nombre de fiches par thème dans l'archive
+uv run python scripts/prepare_docs.py          # génère data/raw/corpus.parquet
+uv run python scripts/check_coverage.py        # couverture du texte (100 % attendu)
+uv run python scripts/check_corpus.py          # contrôles de forme (2 « ERREUR » attendues, voir plus haut)
+uv run python scripts/inspect_corpus.py        # statistiques de cette data card
+uv run python scripts/verify_golden.py         # aide à la relecture du golden set (eval/golden_review.md, non versionné)
+uv run python scripts/run_ingest.py            # découpage et index vectoriel (section suivante)
 ```
 
-## Découpage (à compléter après l'ingestion)
+## Découpage
 
-*Stratégie retenue (découpage par section, taille maximale des chunks), nombre de chunks obtenus, et résultats comparés des stratégies testées sur le golden set.*
+**Stratégie retenue.** Chaque fiche est d'abord coupée en sections (chaque ligne « ## Chapitre > Cas » ouvre une section), puis chaque section en fenêtres de **150 mots avec 30 mots de recouvrement** (fonction `split_words` du lab 05). Un passage ne mélange donc jamais deux situations. Chaque passage commence par un en-tête « [thème] titre (MàJ: date) » suivi du chemin de sa section, pour rester compréhensible hors de son contexte (exemple : « En Île-de-France > Comment est calculée la taxe d'aménagement ? »). Code : `src/rag_assistant/chunking.py`.
+
+**Résultat :** 15 785 passages ; médiane 68 mots (166 tokens), 22 % de moins de 30 mots (sections courtes) ; aucun passage ne dépasse les 512 tokens que lit le modèle d'embedding (`intfloat/multilingual-e5-small`, le plus long en fait 472). Chaque passage est stocké dans Chroma (métrique cosinus) avec ses métadonnées : fiche, titre, date, thème, URL, type, fil d'Ariane, section, modèle d'embedding et paramètres de découpage.
+
+**Stratégies comparées** (même golden set, une seule chose change à la fois ; recherche hybride BM25 + dense, fusion RRF, reranking ; métriques par fiche, `eval/eval_retrieval.py`) :
+
+| Découpage | Passages | Passages > 512 tokens | Recall@5 | MRR | nDCG@5 |
+|---|---|---|---|---|---|
+| 150 mots, sans tenir compte des sections (version initiale) | 11 677 | non mesuré | 0,970 | 0,809 | 0,849 |
+| **Par section, 150 mots, recouvrement 30 (retenu)** | 15 785 | **0** | **1,000** | 0,895 | 0,922 |
+| Par section, 250 mots, recouvrement 40 | 13 542 | 31 | 1,000 | 0,945 | 0,959 |
+| Par section, 300 mots, recouvrement 45 | 13 173 | 326 | 0,970 | 0,870 | 0,895 |
+
+**Règle de choix, fixée avant de regarder les résultats :** la plus grande taille qui ne dépasse pas la limite de 512 tokens du modèle (au-delà, la fin du passage n'est pas lue), sauf si elle est nettement moins bonne. Les découpages à 250 et 300 mots dépassent la limite. L'avance de 250 mots sur 150 mots n'est pas prouvée : MRR +0,050, intervalle de confiance à 95 % de −0,024 à +0,135 (bootstrap apparié sur les 33 questions), il contient 0.
+
+**Limite :** le découpage a été choisi sur les 33 questions notables du golden set, avant la création de la partie de test (section suivante) ; ces chiffres sont donc légèrement optimistes. Avec 33 questions, une question vaut 3 points : seuls de grands écarts sont significatifs.
+
+Ce tableau a été mesuré avant la complétion des `gold_docs` (section suivante). Avec les `gold_docs` complétés, le découpage retenu obtient **Recall@5 0,985, MRR 0,910, nDCG@5 0,920**. Le MRR monte (une bonne fiche de plus ne peut que remonter la première), mais Recall@5 et nDCG@5 peuvent baisser, car ils comptent la part de **toutes** les fiches attendues retrouvées. La seule question concernée est q025 : la bonne fiche arrive première, mais la seconde fiche attendue (F31471) n'est pas dans les 5 premières, parce que les 30 passages récupérés ne couvrent que 2 fiches, dont une très longue (F31473) qui occupe beaucoup de passages.
+
+## Golden set
+
+`eval/golden.jsonl` : 40 questions au format du sujet (`id`, `question`, `answer`, `gold_docs`), avec deux champs ajoutés :
+
+- `type` : `simple` (q001 à q020, un fait précis dans une fiche), `conditionnelle` (q021 à q031, la réponse dépend d'une précision de la question), `hors_corpus` (q032 à q035), `injection` (q036 à q040, tentatives de détourner l'assistant) ;
+- `split` : `dev` ou `test`, en alternance dans chaque type. Les réglages (prompts de l'agent) se font sur `dev` uniquement ; la partie `test` (19 questions) sert de mesure honnête.
+
+| Type | Questions | dev | test | Comportement attendu |
+|---|---|---|---|---|
+| simple | 20 | 10 | 10 | répondre en citant la bonne fiche |
+| conditionnelle | 11 | 6 | 5 | répondre pour la bonne situation, en citant la bonne fiche |
+| hors_corpus | 4 | 2 | 2 | refuser (information absente du corpus) |
+| injection | 5 | 3 | 2 | refuser (q036 à q038) ou ignorer la manipulation et répondre normalement (q039, q040) |
+
+Règle simple : `gold_docs` vide signifie qu'un refus est attendu.
+
+**Fiches attendues complétées.** Le sujet définit `gold_docs` comme les fiches qui contiennent la réponse. Le script `scripts/verify_golden.py` liste, pour chaque question, les autres fiches qui contiennent tous les éléments clés de la réponse (chiffres, numéros cerfa, sigles). Chaque candidate a été relue avec une règle : elle est ajoutée si sa lecture donne la réponse correcte et complète **pour la situation de la question**. Sept fiches ont été ajoutées :
+
+| Question | Fiche ajoutée | Raison |
+|---|---|---|
+| q003 (formulaire de division de terrain) | F17578 Déclaration préalable | section « division de terrain », même cerfa n°16703*03 |
+| q004 (maison de 1930 mise en location) | F33463 diagnostics dus par le bailleur, F1141 habitat contenant du plomb | CREP obligatoire pour une location d'un logement d'avant 1949 |
+| q010 (état des lieux par commissaire de justice) | F31270 état des lieux d'entrée, F33671 de sortie, F10696 frais d'état des lieux | même barème et frais partagés entre locataire et propriétaire |
+| q025 (abri de jardin de 15 m²) | F31471 annexe dans son jardin | l'abri de jardin y est un exemple d'annexe, avec les mêmes seuils |
+
+Candidates écartées, par exemple : la fiche sur les diagnostics en cas de **vente** pour q004 (la question porte sur une location), et les fiches de renouvellement ou de première demande de passeport pour q030 (même prix du timbre, mais la question porte sur un passeport **volé**). Sans cette correction, une citation juste pouvait être comptée comme fausse, ce qui sous-estimait les métriques de recherche.

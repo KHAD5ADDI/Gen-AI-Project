@@ -1,46 +1,78 @@
-import pandas as pd
+"""Construit et lit l'index Chroma."""
+
 import chromadb
+import pandas as pd
+
 from .chunking import chunk_document
+from .config import CHROMA_DIR, CHUNK_OVERLAP, CHUNK_SIZE, COLLECTION, CORPUS_PATH, EMBED_MODEL
 from .embedding import Embedder
 
-class IngestionPipeline:
-    def __init__(self, persist_directory="./chroma_db_final", parquet_path="data/raw/corpus.parquet"):
-        self.embedder = Embedder()
-        self.chroma_client = chromadb.PersistentClient(path=persist_directory) if persist_directory else chromadb.EphemeralClient()
-        # On ouvre l'index existant sans l'effacer, et on reconstruit le docstore
-        # (en mémoire) en redécoupant le parquet : rapide, aucun embedding recalculé.
-        self.collection = self.chroma_client.get_or_create_collection(name="rag_sp_documents")
-        self.docstore = {}
-        if self.collection.count() > 0:
-            for chunk in self._chunks(parquet_path):
-                self.docstore[chunk["chunk_id"]] = chunk
 
-    def _chunks(self, parquet_path):
+class IngestionPipeline:
+    """Gère les passages et leurs vecteurs dans Chroma."""
+
+    def __init__(self, persist_directory=CHROMA_DIR, load_docstore=True):
+        """Ouvre l'index et charge ses passages, sauf avant une reconstruction."""
+        self.chroma_client = (
+            chromadb.PersistentClient(path=str(persist_directory))
+            if persist_directory else chromadb.EphemeralClient()
+        )
+        self.collection = self.chroma_client.get_or_create_collection(
+            name=COLLECTION, configuration={"hnsw": {"space": "cosine"}}
+        )
+        self.docstore = self._load_docstore() if load_docstore else {}
+        self.embedder = Embedder()
+
+    def _load_docstore(self):
+        """Relit les passages stockés dans l'index."""
+        data = self.collection.get(include=["documents", "metadatas"])
+        if data["metadatas"]:
+            first_metadata = data["metadatas"][0] or {}
+            if any(key not in first_metadata for key in ("body", "embed_model", "date_num")):
+                raise RuntimeError(
+                    "Cet index utilise l'ancien découpage. Reconstruisez-le avec uv run python scripts/run_ingest.py."
+                )
+        return {
+            chunk_id: {**metadata, "chunk_id": chunk_id, "text": document}
+            for chunk_id, metadata, document in zip(data["ids"], data["metadatas"], data["documents"])
+        }
+
+    def _chunks(self, parquet_path, size, overlap):
+        """Découpe les fiches du parquet."""
         df = pd.read_parquet(parquet_path)
         all_chunks = []
         for row in df.to_dict(orient="records"):
-            all_chunks.extend(chunk_document(row))
+            all_chunks.extend(chunk_document(row, size=size, overlap=overlap))
         return all_chunks
 
-    def ingest_parquet(self, parquet_path="data/raw/corpus.parquet"):
-        # La remise à zéro de l'index se fait ici, plus à l'ouverture.
-        self.chroma_client.delete_collection(name="rag_sp_documents")
-        self.collection = self.chroma_client.create_collection(name="rag_sp_documents")
-        all_chunks = self._chunks(parquet_path)
-            
-        texts = [c["text"] for c in all_chunks]
+    def ingest_parquet(self, parquet_path=CORPUS_PATH, size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
+        """Reconstruit l'index et ses métadonnées à partir du corpus."""
+        self.chroma_client.delete_collection(name=COLLECTION)
+        self.collection = self.chroma_client.create_collection(
+            name=COLLECTION, configuration={"hnsw": {"space": "cosine"}}
+        )
+        all_chunks = self._chunks(parquet_path, size, overlap)
+
+        texts = [chunk["text"] for chunk in all_chunks]
         embeddings = self.embedder.encode_chunks(texts)
-        ids = [c["chunk_id"] for c in all_chunks]
-        metadatas = [{"doc_id": c["doc_id"], "date": c["date"], "title": c["title"], "theme": c["theme"]} for c in all_chunks]
-        
+        ids = [chunk["chunk_id"] for chunk in all_chunks]
+        metadatas = []
+        for chunk in all_chunks:
+            metadata = {key: value for key, value in chunk.items() if key != "text"}
+            # Chroma compare des nombres, pas des dates sous forme de texte.
+            metadata["date_num"] = int(chunk["date"].replace("-", ""))
+            metadata["embed_model"] = EMBED_MODEL
+            metadata["chunk_size"] = size
+            metadata["chunk_overlap"] = overlap
+            metadatas.append(metadata)
+
         batch_size = 5000
         for i in range(0, len(ids), batch_size):
             self.collection.add(
-                ids=ids[i:i+batch_size],
-                embeddings=embeddings[i:i+batch_size],
-                documents=texts[i:i+batch_size],
-                metadatas=metadatas[i:i+batch_size]
+                ids=ids[i:i + batch_size],
+                embeddings=embeddings[i:i + batch_size],
+                documents=texts[i:i + batch_size],
+                metadatas=metadatas[i:i + batch_size],
             )
-        
-        for chunk in all_chunks:
-            self.docstore[chunk["chunk_id"]] = chunk
+
+        self.docstore = self._load_docstore()

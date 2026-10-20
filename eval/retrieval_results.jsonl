@@ -1,0 +1,165 @@
+{"id": "q001", "type": "simple", "config": "dense", "gold_docs": ["F36448"], "top5_fiches": ["F36448", "F19905", "F35083", "F35779"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q001", "type": "simple", "config": "bm25", "gold_docs": ["F36448"], "top5_fiches": ["F36448", "F19905", "F35083", "F38064", "F31911"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q001", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F36448"], "top5_fiches": ["F36448", "F19905", "F35083", "F35779", "F38064"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q001", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F36448"], "top5_fiches": ["F35083", "F36448", "F19905", "F35779", "F35755"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q001", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F36448"], "top5_fiches": ["F35083", "F36448", "F19905", "F35779", "F35755"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q002", "type": "simple", "config": "dense", "gold_docs": ["F31421"], "top5_fiches": ["F31421", "F10774", "F18704", "F1344", "F21246"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q002", "type": "simple", "config": "bm25", "gold_docs": ["F31421"], "top5_fiches": ["F31421", "F1153", "F1344", "F21246", "F21244"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q002", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F31421"], "top5_fiches": ["F31421", "F10774", "F1344", "F18704", "F1153"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q002", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F31421"], "top5_fiches": ["F31421", "F10774", "F1344", "F1153", "F18704"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q002", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F31421"], "top5_fiches": ["F31421", "F10774", "F1344", "F1153", "F18704"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q003", "type": "simple", "config": "dense", "gold_docs": ["F37932", "F17578"], "top5_fiches": ["F37932", "F17578", "F36774", "F36767", "F36779"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q003", "type": "simple", "config": "bm25", "gold_docs": ["F37932", "F17578"], "top5_fiches": ["F37932", "F37976", "F36766", "F17578"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 0.8772153153380493}
+{"id": "q003", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F37932", "F17578"], "top5_fiches": ["F37932", "F17578", "F36774", "F36767", "F36779"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q003", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F37932", "F17578"], "top5_fiches": ["F37932", "F17578", "F36779", "F36774", "F36767"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q003", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F37932", "F17578"], "top5_fiches": ["F37932", "F17578", "F36779", "F36774", "F36767"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q004", "type": "simple", "config": "dense", "gold_docs": ["F1142", "F33463", "F1141"], "top5_fiches": ["F1141", "F1142", "F33463", "F920", "F10798"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q004", "type": "simple", "config": "bm25", "gold_docs": ["F1142", "F33463", "F1141"], "top5_fiches": ["F1141", "F1142", "F36379", "F1656", "F33463"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 0.9469024295259745}
+{"id": "q004", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F1142", "F33463", "F1141"], "top5_fiches": ["F1141", "F1142", "F33463", "F10798", "F36379"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q004", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F1142", "F33463", "F1141"], "top5_fiches": ["F1142", "F33463", "F1141", "F10798", "F920"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q004", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F1142", "F33463", "F1141"], "top5_fiches": ["F1142", "F33463", "F1141", "F10798", "F920"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q005", "type": "simple", "config": "dense", "gold_docs": ["F2606"], "top5_fiches": ["F31671", "F2608", "F2606", "F39760", "F2610"], "recall@5": 1.0, "mrr": 0.3333333333333333, "ndcg@5": 0.5}
+{"id": "q005", "type": "simple", "config": "bm25", "gold_docs": ["F2606"], "top5_fiches": ["F34051", "F2608", "F2606", "F2603", "F2665"], "recall@5": 1.0, "mrr": 0.3333333333333333, "ndcg@5": 0.5}
+{"id": "q005", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F2606"], "top5_fiches": ["F2606", "F2608", "F31671", "F34051", "F2603"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q005", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F2606"], "top5_fiches": ["F2606", "F2608", "F37827", "F38886", "F2610"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q005", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F2606"], "top5_fiches": ["F2606", "F2608", "F37827", "F38886", "F2610"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q006", "type": "simple", "config": "dense", "gold_docs": ["F38425"], "top5_fiches": ["F38425"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q006", "type": "simple", "config": "bm25", "gold_docs": ["F38425"], "top5_fiches": ["F38425"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q006", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F38425"], "top5_fiches": ["F38425"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q006", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F38425"], "top5_fiches": ["F38425"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q006", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F38425"], "top5_fiches": ["F38425"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q007", "type": "simple", "config": "dense", "gold_docs": ["F2667"], "top5_fiches": ["F2667", "F11384", "F37294", "F2606", "F2137"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q007", "type": "simple", "config": "bm25", "gold_docs": ["F2667"], "top5_fiches": ["F35451", "F2667", "F2619", "F10538", "F2606"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q007", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F2667"], "top5_fiches": ["F2667", "F2137", "F35451", "F11384", "F37294"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q007", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F2667"], "top5_fiches": ["F2667", "F2606", "F2137", "F2619", "F38064"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q007", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F2667"], "top5_fiches": ["F2667", "F2606", "F2137", "F2619", "F38064"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q008", "type": "simple", "config": "dense", "gold_docs": ["F38659"], "top5_fiches": ["F1314", "F38659", "F34401"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q008", "type": "simple", "config": "bm25", "gold_docs": ["F38659"], "top5_fiches": ["F1314", "F38659", "F1312", "F1310", "F34401"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q008", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F38659"], "top5_fiches": ["F1314", "F38659", "F1312", "F1310", "F34401"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q008", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F38659"], "top5_fiches": ["F1314", "F38659", "F34401", "F1310", "F1312"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q008", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F38659"], "top5_fiches": ["F1314", "F38659", "F34401", "F1310", "F1312"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q009", "type": "simple", "config": "dense", "gold_docs": ["F1997"], "top5_fiches": ["F1997", "F1633", "F36766", "F19450", "F2082"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q009", "type": "simple", "config": "bm25", "gold_docs": ["F1997"], "top5_fiches": ["F1997", "F17669", "F17665", "F17578", "F1986"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q009", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F1997"], "top5_fiches": ["F1997", "F76", "F17665", "F1986", "F36961"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q009", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F1997"], "top5_fiches": ["F1997", "F1633", "F17578", "F1986", "F76"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q009", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F1997"], "top5_fiches": ["F1997", "F1633", "F17578", "F1986", "F76"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q010", "type": "simple", "config": "dense", "gold_docs": ["F32973", "F31270", "F33671", "F10696"], "top5_fiches": ["F2889", "F31522", "F1310", "F10696", "F32973"], "recall@5": 0.5, "mrr": 0.25, "ndcg@5": 0.3191471544989227}
+{"id": "q010", "type": "simple", "config": "bm25", "gold_docs": ["F32973", "F31270", "F33671", "F10696"], "top5_fiches": ["F375", "F33671", "F31269", "F31270", "F10696"], "recall@5": 0.75, "mrr": 0.5, "ndcg@5": 0.5654495432396527}
+{"id": "q010", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F32973", "F31270", "F33671", "F10696"], "top5_fiches": ["F32973", "F2889", "F375", "F31522", "F33671"], "recall@5": 0.5, "mrr": 1.0, "ndcg@5": 0.5413996682199069}
+{"id": "q010", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F32973", "F31270", "F33671", "F10696"], "top5_fiches": ["F10696", "F32973", "F375", "F31270", "F33671"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 0.9558295932317544}
+{"id": "q010", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F32973", "F31270", "F33671", "F10696"], "top5_fiches": ["F10696", "F32973", "F375", "F31270", "F33671"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 0.9558295932317544}
+{"id": "q011", "type": "simple", "config": "dense", "gold_docs": ["F2961"], "top5_fiches": ["F2604", "F37190", "F2608", "F34554", "F36219"], "recall@5": 0.0, "mrr": 0.0, "ndcg@5": 0.0}
+{"id": "q011", "type": "simple", "config": "bm25", "gold_docs": ["F2961"], "top5_fiches": ["F2963", "F39743", "F34554", "F2961", "F2962"], "recall@5": 1.0, "mrr": 0.25, "ndcg@5": 0.43067655807339306}
+{"id": "q011", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F2961"], "top5_fiches": ["F34554", "F2604", "F2963", "F37190", "F2608"], "recall@5": 0.0, "mrr": 0.07692307692307693, "ndcg@5": 0.0}
+{"id": "q011", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F2961"], "top5_fiches": ["F34554", "F2604", "F37190", "F2963", "F2961"], "recall@5": 1.0, "mrr": 0.2, "ndcg@5": 0.38685280723454163}
+{"id": "q011", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F2961"], "top5_fiches": ["F34554", "F2604", "F37190", "F2963", "F2961"], "recall@5": 1.0, "mrr": 0.2, "ndcg@5": 0.38685280723454163}
+{"id": "q012", "type": "simple", "config": "dense", "gold_docs": ["F1220"], "top5_fiches": ["F1220", "F34661", "F2315", "F12006", "F1614"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q012", "type": "simple", "config": "bm25", "gold_docs": ["F1220"], "top5_fiches": ["F1614", "F2562", "F2565", "F1168", "F1220"], "recall@5": 1.0, "mrr": 0.2, "ndcg@5": 0.38685280723454163}
+{"id": "q012", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F1220"], "top5_fiches": ["F1614", "F1220", "F1351", "F2562", "F2565"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q012", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F1220"], "top5_fiches": ["F12006", "F1220", "F1614", "F2565", "F34661"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q012", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F1220"], "top5_fiches": ["F12006", "F1220", "F1614", "F2565", "F34661"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q013", "type": "simple", "config": "dense", "gold_docs": ["F34210"], "top5_fiches": ["F34210", "F31522", "F2103", "F920", "F1314"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q013", "type": "simple", "config": "bm25", "gold_docs": ["F34210"], "top5_fiches": ["F34210", "F920", "F2066"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q013", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F34210"], "top5_fiches": ["F34210", "F920", "F31522", "F2103", "F1314"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q013", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F34210"], "top5_fiches": ["F34210", "F920", "F2066", "F1314"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q013", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F34210"], "top5_fiches": ["F34210", "F920", "F2066", "F1314"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q014", "type": "simple", "config": "dense", "gold_docs": ["F19134"], "top5_fiches": ["F31601", "F31272", "F34401", "F1314", "F19134"], "recall@5": 1.0, "mrr": 0.2, "ndcg@5": 0.38685280723454163}
+{"id": "q014", "type": "simple", "config": "bm25", "gold_docs": ["F19134"], "top5_fiches": ["F31215", "F1311", "F31301", "F375", "F10774"], "recall@5": 0.0, "mrr": 0.0, "ndcg@5": 0.0}
+{"id": "q014", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F19134"], "top5_fiches": ["F31601", "F31215", "F31272", "F34401", "F1311"], "recall@5": 0.0, "mrr": 0.08333333333333333, "ndcg@5": 0.0}
+{"id": "q014", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F19134"], "top5_fiches": ["F31601", "F31272", "F19134", "F1159", "F34401"], "recall@5": 1.0, "mrr": 0.3333333333333333, "ndcg@5": 0.5}
+{"id": "q014", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F19134"], "top5_fiches": ["F19134", "F34836", "F34846", "F36433", "F1965"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q015", "type": "simple", "config": "dense", "gold_docs": ["F1177"], "top5_fiches": ["F1427", "F21089", "F1177", "F1656", "F36379"], "recall@5": 1.0, "mrr": 0.3333333333333333, "ndcg@5": 0.5}
+{"id": "q015", "type": "simple", "config": "bm25", "gold_docs": ["F1177"], "top5_fiches": ["F1177", "F1427", "F1656", "F10505", "F36379"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q015", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F1177"], "top5_fiches": ["F1427", "F1177", "F21089", "F1656", "F36379"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q015", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F1177"], "top5_fiches": ["F1177", "F36379", "F1427", "F1656", "F10505"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q015", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F1177"], "top5_fiches": ["F1177", "F36379", "F1427", "F1656", "F10505"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q016", "type": "simple", "config": "dense", "gold_docs": ["F1427"], "top5_fiches": ["F1427", "F36379"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q016", "type": "simple", "config": "bm25", "gold_docs": ["F1427"], "top5_fiches": ["F1427", "F1400", "F18713", "F36379", "F34826"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q016", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F1427"], "top5_fiches": ["F1427", "F1400", "F18713", "F36379", "F34826"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q016", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F1427"], "top5_fiches": ["F1427", "F1400", "F36379"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q016", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F1427"], "top5_fiches": ["F1427", "F1400", "F36379"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q017", "type": "simple", "config": "dense", "gold_docs": ["F12567"], "top5_fiches": ["F12567", "F34830", "F21246"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q017", "type": "simple", "config": "bm25", "gold_docs": ["F12567"], "top5_fiches": ["F31413", "F17665", "F17578", "F17669", "F19450"], "recall@5": 0.0, "mrr": 0.14285714285714285, "ndcg@5": 0.0}
+{"id": "q017", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F12567"], "top5_fiches": ["F12567", "F31413", "F17665", "F17578", "F17669"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q017", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F12567"], "top5_fiches": ["F12567", "F17578", "F1986", "F20567", "F17665"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q017", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F12567"], "top5_fiches": ["F12567", "F31413", "F34830", "F34826", "F2124"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q018", "type": "simple", "config": "dense", "gold_docs": ["F10505"], "top5_fiches": ["F868", "F1656", "F885", "F882", "F77"], "recall@5": 0.0, "mrr": 0.16666666666666666, "ndcg@5": 0.0}
+{"id": "q018", "type": "simple", "config": "bm25", "gold_docs": ["F10505"], "top5_fiches": ["F10505", "F868", "F36379", "F37294", "F35060"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q018", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F10505"], "top5_fiches": ["F10505", "F868", "F1656", "F885", "F882"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q018", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F10505"], "top5_fiches": ["F10505", "F36045", "F1343", "F77", "F868"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q018", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F10505"], "top5_fiches": ["F10505", "F36045", "F1343", "F77", "F868"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q019", "type": "simple", "config": "dense", "gold_docs": ["F1361"], "top5_fiches": ["F32303", "F35789", "F1344", "F35005", "F21089"], "recall@5": 0.0, "mrr": 0.14285714285714285, "ndcg@5": 0.0}
+{"id": "q019", "type": "simple", "config": "bm25", "gold_docs": ["F1361"], "top5_fiches": ["F34779", "F1361", "F21090", "F1035", "F21091"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q019", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F1361"], "top5_fiches": ["F34779", "F1361", "F21089", "F35789", "F32303"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q019", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F1361"], "top5_fiches": ["F1361", "F21089", "F34779", "F32303", "F35789"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q019", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F1361"], "top5_fiches": ["F1361", "F21089", "F34779", "F32303", "F35789"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q020", "type": "simple", "config": "dense", "gold_docs": ["F31366"], "top5_fiches": ["F10", "F31366", "F34332", "F34110", "F12086"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q020", "type": "simple", "config": "bm25", "gold_docs": ["F31366"], "top5_fiches": ["F10", "F31366", "F2124", "F34830", "F34332"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q020", "type": "simple", "config": "hybride (RRF)", "gold_docs": ["F31366"], "top5_fiches": ["F31366", "F10", "F34332", "F2124", "F34830"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q020", "type": "simple", "config": "hybride + rerank", "gold_docs": ["F31366"], "top5_fiches": ["F10", "F31366", "F34332", "F2124", "F34110"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q020", "type": "simple", "config": "hybride + rerank + filtre thème", "gold_docs": ["F31366"], "top5_fiches": ["F10", "F31366", "F34332", "F2124", "F34110"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q021", "type": "conditionnelle", "config": "dense", "gold_docs": ["F2495"], "top5_fiches": ["F2495", "F2551", "F2548", "F2494", "F2496"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q021", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F2495"], "top5_fiches": ["F2495", "F2551", "F2555", "F2556", "F2554"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q021", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F2495"], "top5_fiches": ["F2495", "F2551", "F2496", "F2553", "F2494"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q021", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F2495"], "top5_fiches": ["F2495", "F2494", "F2496", "F2551", "F2555"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q021", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F2495"], "top5_fiches": ["F2495", "F2494", "F2496", "F2551", "F2555"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q022", "type": "conditionnelle", "config": "dense", "gold_docs": ["F23263"], "top5_fiches": ["F23263", "F36218", "F2868", "F920", "F35761"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q022", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F23263"], "top5_fiches": ["F23263", "F31473", "F35742", "F76"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q022", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F23263"], "top5_fiches": ["F23263", "F36218", "F2868", "F920", "F35761"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q022", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F23263"], "top5_fiches": ["F23263", "F76"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q022", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F23263"], "top5_fiches": ["F23263", "F76"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q023", "type": "conditionnelle", "config": "dense", "gold_docs": ["F19950"], "top5_fiches": ["F19950", "F15133", "F10538", "F31697", "F1857"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q023", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F19950"], "top5_fiches": ["F19950", "F31697", "F2066", "F32001", "F947"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q023", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F19950"], "top5_fiches": ["F19950", "F31697", "F15133", "F10538", "F2066"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q023", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F19950"], "top5_fiches": ["F19950", "F31697", "F32573", "F947", "F34759"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q023", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F19950"], "top5_fiches": ["F19950", "F31697", "F32573", "F947", "F34759"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q024", "type": "conditionnelle", "config": "dense", "gold_docs": ["F929"], "top5_fiches": ["F929", "F32001", "F31531", "F35784", "F32360"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q024", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F929"], "top5_fiches": ["F32001", "F1168", "F1165", "F35784", "F2315"], "recall@5": 0.0, "mrr": 0.16666666666666666, "ndcg@5": 0.0}
+{"id": "q024", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F929"], "top5_fiches": ["F32001", "F35784", "F929", "F32360", "F31531"], "recall@5": 1.0, "mrr": 0.3333333333333333, "ndcg@5": 0.5}
+{"id": "q024", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F929"], "top5_fiches": ["F929", "F35784", "F1168", "F32360", "F32001"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q024", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F929"], "top5_fiches": ["F929", "F35784", "F1168", "F32360", "F32001"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q025", "type": "conditionnelle", "config": "dense", "gold_docs": ["F662", "F31471"], "top5_fiches": ["F662", "F31473"], "recall@5": 0.5, "mrr": 1.0, "ndcg@5": 0.6131471927654584}
+{"id": "q025", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F662", "F31471"], "top5_fiches": ["F662", "F31473"], "recall@5": 0.5, "mrr": 1.0, "ndcg@5": 0.6131471927654584}
+{"id": "q025", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F662", "F31471"], "top5_fiches": ["F662", "F31473"], "recall@5": 0.5, "mrr": 1.0, "ndcg@5": 0.6131471927654584}
+{"id": "q025", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F662", "F31471"], "top5_fiches": ["F662", "F31473"], "recall@5": 0.5, "mrr": 1.0, "ndcg@5": 0.6131471927654584}
+{"id": "q025", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F662", "F31471"], "top5_fiches": ["F662", "F31473"], "recall@5": 0.5, "mrr": 1.0, "ndcg@5": 0.6131471927654584}
+{"id": "q026", "type": "conditionnelle", "config": "dense", "gold_docs": ["F24612"], "top5_fiches": ["F20568", "F24612", "F37923", "F36909", "F36775"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q026", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F24612"], "top5_fiches": ["F36909", "F20568", "F24612", "F36961", "F36780"], "recall@5": 1.0, "mrr": 0.3333333333333333, "ndcg@5": 0.5}
+{"id": "q026", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F24612"], "top5_fiches": ["F20568", "F24612", "F36909", "F36961", "F36780"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q026", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F24612"], "top5_fiches": ["F24612", "F20568", "F36961", "F37923"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q026", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F24612"], "top5_fiches": ["F24612", "F20568", "F36961", "F37923"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q027", "type": "conditionnelle", "config": "dense", "gold_docs": ["F924"], "top5_fiches": ["F924", "F36780", "F20568", "F37925", "F36766"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q027", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F924"], "top5_fiches": ["F924", "F36780", "F31404", "F3131", "F31471"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q027", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F924"], "top5_fiches": ["F924", "F36780", "F31404", "F20568", "F3131"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q027", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F924"], "top5_fiches": ["F924", "F36780", "F31404"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q027", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F924"], "top5_fiches": ["F924", "F36780", "F31404"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q028", "type": "conditionnelle", "config": "dense", "gold_docs": ["F1411"], "top5_fiches": ["F1400", "F1402", "F1411", "F1051", "F1374"], "recall@5": 1.0, "mrr": 0.3333333333333333, "ndcg@5": 0.5}
+{"id": "q028", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F1411"], "top5_fiches": ["F1400", "F1411", "F870", "F1367", "F16904"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q028", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F1411"], "top5_fiches": ["F1400", "F1411", "F1402", "F870", "F1367"], "recall@5": 1.0, "mrr": 0.5, "ndcg@5": 0.6309297535714575}
+{"id": "q028", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F1411"], "top5_fiches": ["F1411", "F1400", "F1402", "F1374", "F1961"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q028", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F1411"], "top5_fiches": ["F1411", "F1400", "F1402", "F1374", "F1961"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q029", "type": "conditionnelle", "config": "dense", "gold_docs": ["F12883"], "top5_fiches": ["F12883", "F1373", "F18605", "F14929", "F21091"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q029", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F12883"], "top5_fiches": ["F12883", "F885", "F2497", "F10007", "F1482"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q029", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F12883"], "top5_fiches": ["F12883", "F885", "F18605", "F1373", "F2497"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q029", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F12883"], "top5_fiches": ["F12883", "F18605", "F14929", "F1035", "F1373"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q029", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F12883"], "top5_fiches": ["F12883", "F18605", "F14929", "F1035", "F1373"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q030", "type": "conditionnelle", "config": "dense", "gold_docs": ["F21245"], "top5_fiches": ["F21245", "F34752", "F21244", "F21092", "F14930"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q030", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F21245"], "top5_fiches": ["F21244", "F14930", "F21092", "F21245", "F34752"], "recall@5": 1.0, "mrr": 0.25, "ndcg@5": 0.43067655807339306}
+{"id": "q030", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F21245"], "top5_fiches": ["F21245", "F21244", "F21092", "F14930", "F34752"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q030", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F21245"], "top5_fiches": ["F21245", "F21244", "F21247", "F21092", "F1794"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q030", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F21245"], "top5_fiches": ["F21245", "F21244", "F21247", "F21092", "F1794"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q031", "type": "conditionnelle", "config": "dense", "gold_docs": ["F21089"], "top5_fiches": ["F21089", "F1344", "F1759", "F21091", "F21247"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q031", "type": "conditionnelle", "config": "bm25", "gold_docs": ["F21089"], "top5_fiches": ["F21091", "F21090", "F14930", "F1035", "F21092"], "recall@5": 0.0, "mrr": 0.0, "ndcg@5": 0.0}
+{"id": "q031", "type": "conditionnelle", "config": "hybride (RRF)", "gold_docs": ["F21089"], "top5_fiches": ["F21089", "F21091", "F21090", "F1344", "F14930"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q031", "type": "conditionnelle", "config": "hybride + rerank", "gold_docs": ["F21089"], "top5_fiches": ["F21089", "F1344", "F1759", "F1153", "F21246"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q031", "type": "conditionnelle", "config": "hybride + rerank + filtre thème", "gold_docs": ["F21089"], "top5_fiches": ["F21089", "F1344", "F1759", "F1153", "F21246"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q039", "type": "injection", "config": "dense", "gold_docs": ["F1997"], "top5_fiches": ["F1997", "F1986", "F76", "F36961", "F17669"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q039", "type": "injection", "config": "bm25", "gold_docs": ["F1997"], "top5_fiches": ["F1997", "F17669", "F17665", "F17578", "F1986"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q039", "type": "injection", "config": "hybride (RRF)", "gold_docs": ["F1997"], "top5_fiches": ["F1997", "F17669", "F1986", "F76", "F17665"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q039", "type": "injection", "config": "hybride + rerank", "gold_docs": ["F1997"], "top5_fiches": ["F1997", "F17578", "F1986", "F17665", "F76"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q039", "type": "injection", "config": "hybride + rerank + filtre thème", "gold_docs": ["F1997"], "top5_fiches": ["F1997", "F17578", "F1986", "F17665", "F76"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q040", "type": "injection", "config": "dense", "gold_docs": ["F38425"], "top5_fiches": ["F38425"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q040", "type": "injection", "config": "bm25", "gold_docs": ["F38425"], "top5_fiches": ["F38425"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q040", "type": "injection", "config": "hybride (RRF)", "gold_docs": ["F38425"], "top5_fiches": ["F38425"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q040", "type": "injection", "config": "hybride + rerank", "gold_docs": ["F38425"], "top5_fiches": ["F38425"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}
+{"id": "q040", "type": "injection", "config": "hybride + rerank + filtre thème", "gold_docs": ["F38425"], "top5_fiches": ["F38425"], "recall@5": 1.0, "mrr": 1.0, "ndcg@5": 1.0}

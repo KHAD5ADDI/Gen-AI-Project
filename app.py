@@ -1,13 +1,13 @@
 import streamlit as st
 import time
 import os
-from src.rag_assistant.ingest import IngestionPipeline
-from src.rag_assistant.retrieval import HybridRetriever
-from src.rag_assistant.agent import run_agent
-from src.rag_assistant.tracing import Trace
+from rag_assistant.ingest import IngestionPipeline
+from rag_assistant.retrieval import HybridRetriever
+from rag_assistant.agent import run_agent
+from rag_assistant.tracing import Trace
 
 # Pour exécution locale :
-from llama_index.llms.ollama import Ollama
+from rag_assistant.llm import get_llm
 # Pour exécution Cloud (Hugging Face Spaces) - DÉCOMMENTER :
 # from llama_index.llms.huggingface_api import HuggingFaceInferenceAPI
 
@@ -19,7 +19,7 @@ def init_system():
     retriever = HybridRetriever(ingestion_pipeline=pipeline)
     
     # Configuration LOCAL :
-    llm = Ollama(model="llama3.1:8b", request_timeout=120.0)
+    llm = get_llm()
     
     # Configuration CLOUD (Hugging Face) :
     # hf_token = os.environ.get("HF_TOKEN")

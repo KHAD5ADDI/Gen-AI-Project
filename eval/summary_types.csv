@@ -1,0 +1,5 @@
+config,simple,conditionnelle,hors_corpus,injection
+ollama/llama3.1:8b,0.25,0.364,1.0,0.6
+ollama/llama3.2:1b,0.0,0.0,1.0,0.6
+ollama/llama3.2:3b,0.15,0.409,1.0,0.6
+openrouter/deepseek/deepseek-v4.1-flash,1.0,0.955,1.0,1.0

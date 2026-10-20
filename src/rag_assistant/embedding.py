@@ -1,7 +1,9 @@
 from sentence_transformers import SentenceTransformer
 
+from .config import EMBED_MODEL
+
 class Embedder:
-    def __init__(self, model_name="intfloat/multilingual-e5-small"):
+    def __init__(self, model_name=EMBED_MODEL):
         self.model = SentenceTransformer(model_name)
 
     def encode_chunks(self, texts):

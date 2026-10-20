@@ -14,6 +14,22 @@ def rrf(rankings, k=60, depth=30):
             scores[chunk_id] = scores.get(chunk_id, 0.0) + (1.0 / (k + rank))
     return sorted(scores.keys(), key=lambda x: scores[x], reverse=True)
 
+def filtre_chroma(theme=None, since=None):
+    """Construit le filtre de métadonnées pour Chroma."""
+    conditions = []
+    if theme is not None:
+        conditions.append({"theme": theme})
+    if since is not None:
+        conditions.append({"date_num": {"$gte": since}})
+    if len(conditions) == 2:
+        return {"$and": conditions}
+    return conditions[0] if conditions else None
+
+def garde(chunk, theme=None, since=None):
+    """Applique aux passages BM25 les mêmes critères que Chroma."""
+    return ((theme is None or chunk["theme"] == theme)
+            and (since is None or chunk["date_num"] >= since))
+
 class HybridRetriever:
     def __init__(self, ingestion_pipeline, reranker_model="cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"):
         self.collection = ingestion_pipeline.collection
@@ -25,21 +41,32 @@ class HybridRetriever:
         self.bm25 = BM25Okapi(self.tokens) if self.tokens else None
         self.reranker = CrossEncoder(reranker_model)
 
-    def dense_search(self, query, top_n=30):
+    def dense_search(self, query, top_n=30, theme=None, since=None):
         query_vector = self.embedder.encode_query(query)
-        results = self.collection.query(query_embeddings=[query_vector], n_results=top_n)
+        where = filtre_chroma(theme, since)
+        if where is None:
+            results = self.collection.query(query_embeddings=[query_vector], n_results=top_n)
+        else:
+            results = self.collection.query(query_embeddings=[query_vector], n_results=top_n, where=where)
         return results['ids'][0]
 
-    def bm25_search(self, query, top_n=30):
+    def bm25_search(self, query, top_n=30, theme=None, since=None):
         if not self.bm25: return []
         scores = self.bm25.get_scores(tokenize_fr(query))
         ranked_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
+        if theme is not None or since is not None:
+            return [self.chunks_list[i]["chunk_id"] for i in ranked_indices
+                    if garde(self.chunks_list[i], theme, since)][:top_n]
         return [self.chunks_list[i]["chunk_id"] for i in ranked_indices[:top_n]]
 
-    def search(self, query, top_k=4, pre_k=30):
+    def search(self, query, top_k=4, pre_k=30, theme=None, since=None):
         """Méthode unifiée appelée par l'agent"""
-        dense_ranking = self.dense_search(query, top_n=pre_k)
-        bm25_ranking = self.bm25_search(query, top_n=pre_k)
+        if theme is None and since is None:
+            dense_ranking = self.dense_search(query, top_n=pre_k)
+            bm25_ranking = self.bm25_search(query, top_n=pre_k)
+        else:
+            dense_ranking = self.dense_search(query, top_n=pre_k, theme=theme, since=since)
+            bm25_ranking = self.bm25_search(query, top_n=pre_k, theme=theme, since=since)
         
         candidate_ids = rrf([dense_ranking, bm25_ranking], k=60, depth=pre_k)
         if not candidate_ids: return []
