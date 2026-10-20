@@ -88,6 +88,11 @@
   .badge.error { background: var(--err-bg); color: var(--err-text); }
   .badge.error::before { animation: none; }
   @keyframes pulse { 50% { opacity: .3; } }
+  .student-note {
+    font-size: .72rem; line-height: 1.3; color: var(--muted); background: var(--accent-faint);
+    border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; padding: 4px 10px; cursor: help;
+  }
+  .student-note b { display: block; color: var(--text); font-weight: 700; }
   .link-btn {
     display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--accent); cursor: pointer;
     font-size: .88rem; font-weight: 500; padding: 8px 10px; border-radius: 4px;
@@ -165,8 +170,10 @@
   .tool.final { background: var(--ok-bg); color: var(--ok-text); }
   .step-time { font-size: .74rem; color: var(--muted); }
   .thought { margin-top: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .obs { margin-top: 6px; font-size: .78rem; color: var(--muted); background: var(--surface-2); border-radius: 4px; padding: 8px 12px;
-         font-family: ui-monospace, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 150px; overflow: auto; }
+  .obs { margin-top: 6px; font-size: .8rem; color: var(--muted); background: var(--surface-2); border-radius: 4px; padding: 8px 12px;
+         white-space: pre-wrap; overflow-wrap: anywhere; max-height: 340px; overflow: auto; }
+  .passage + .passage { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+  .passage .chip { margin-right: 6px; }
 
   .typing { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .94rem; }
   .dots { display: inline-flex; gap: 4px; flex: none; }
@@ -247,14 +254,13 @@
       </div>
     </div>
     <div class="header-tools">
+      <div class="student-note" title="Les réponses sont générées automatiquement à partir des fiches Service-Public (Licence Ouverte 2.0). Vérifiez toujours sur le site officiel.">
+        <b>Projet étudiant Albert School</b>Service non officiel
+      </div>
       <span id="status" class="badge"><span id="status-text">Chargement…</span></span>
       <button class="link-btn" id="theme" title="Changer de thème d'affichage">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         Thème
-      </button>
-      <button class="link-btn" id="clear" title="Nouvelle conversation">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        Nouvelle question
       </button>
     </div>
   </div>
@@ -271,10 +277,6 @@
   <section id="welcome">
     <h2 class="page-title">Posez votre question</h2>
     <p class="lead">Logement, papiers, citoyenneté, élections : l'assistant répond à partir des fiches pratiques Service-Public et cite ses sources.</p>
-    <div class="callout">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      <div><b>Projet étudiant Albert School, service non officiel</b>Les réponses sont générées automatiquement à partir des fiches Service-Public (Licence Ouverte 2.0). Si l'information n'est pas dans les fiches, l'assistant le dit. Vérifiez toujours sur le site officiel.</div>
-    </div>
     <h3 class="section-title">Questions fréquentes</h3>
     <div class="suggestions" id="suggestions"></div>
   </section>
@@ -392,8 +394,18 @@ function renderSteps(steps) {
     return `<div class="step">
       <div class="step-head"><b>Étape ${i + 1}</b>${tool}${arg}<span class="step-time">${esc(s.seconds)} s</span></div>
       ${thought ? `<div class="thought">${esc(thought)}</div>` : ""}
-      ${s.observation ? `<div class="obs">${esc(s.observation)}</div>` : ""}
+      ${s.observation ? `<div class="obs">${renderObservation(s.observation)}</div>` : ""}
     </div>`;
+  }).join("");
+}
+
+function renderObservation(text) {
+  const blocks = String(text).split(/\n\n(?=\[F\d+\])/);
+  return blocks.map(block => {
+    const m = block.match(/^\[(F\d+)\]\s*([\s\S]*)$/);
+    return m
+      ? `<div class="passage"><button class="chip" data-doc="${esc(m[1])}" title="Lire la fiche">${esc(m[1])}</button>${esc(m[2])}</div>`
+      : `<div class="passage">${esc(block)}</div>`;
   }).join("");
 }
 
@@ -449,7 +461,6 @@ function autosize() {
 input.addEventListener("input", autosize);
 input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } });
 btn.addEventListener("click", () => ask());
-$("clear").onclick = () => { if (busy) return; chat.innerHTML = ""; welcome.style.display = ""; input.focus(); };
 $("nav-chat").onclick = () => { closeDrawer(); input.focus(); };
 
 /* ---------- Panneau Documents ---------- */

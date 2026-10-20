@@ -149,7 +149,7 @@ def ask():
             "thought": step["text"],
             "tool": action[0] if action else None,
             "input": action[1] if action else None,
-            "observation": (step["observation"] or "")[:600],
+            "observation": step["observation"] or "",
             "seconds": round(step["seconds"], 2),
         })
     try:
