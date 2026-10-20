@@ -34,13 +34,14 @@ Projet de groupe, cours Generative AI (Lambert Fatoux), Albert School, 2026
 
 - [Objectif du projet](#objectif-du-projet)
 - [Fonctionnalités](#fonctionnalités)
-  - [1. Corpus et découpage](#1-corpus-et-découpage)
-  - [2. Recherche hybride et reranking](#2-recherche-hybride-et-reranking)
-  - [3. Agent ReAct](#3-agent-react)
-  - [4. Sorties structurées et validées](#4-sorties-structurées-et-validées)
-  - [5. Traçage, tokens et coût](#5-traçage-tokens-et-coût)
-  - [6. Évaluation](#6-évaluation)
-  - [7. Interface Streamlit](#7-interface-streamlit)
+  - [1. Préparation du corpus (XML vers texte)](#1-préparation-du-corpus-xml-vers-texte)
+  - [2. Découpage](#2-découpage)
+  - [3. Recherche hybride et reranking](#3-recherche-hybride-et-reranking)
+  - [4. Agent ReAct](#4-agent-react)
+  - [5. Sorties structurées et validées](#5-sorties-structurées-et-validées)
+  - [6. Traçage, tokens et coût](#6-traçage-tokens-et-coût)
+  - [7. Évaluation](#7-évaluation)
+  - [8. Interface Streamlit](#8-interface-streamlit)
 - [Résultats](#résultats)
 - [Analyse d'erreurs](#analyse-derreurs)
 - [Risques résiduels](#risques-résiduels)
@@ -61,11 +62,30 @@ Principe du cours : aucun composant n'est considéré comme opérationnel avant 
 
 ## Fonctionnalités
 
-### 1. Corpus et découpage
+### 1. Préparation du corpus (XML vers texte)
 
-Les 526 fiches sont séparées sur les titres de section `## `, puis découpées avec `split_words` du lab 05 en fenêtres de `CHUNK_SIZE = 150` mots avec `CHUNK_OVERLAP = 30` mots. Chaque passage reçoit un en-tête avec thème, titre et date, puis son chemin de section. Le découpage retenu reste sous la limite de 512 tokens de `intfloat/multilingual-e5-small`. La [section Découpage](DATA_CARD.md#découpage) justifie le choix de 150/30.
+La source est l'archive `vosdroits-latest.zip` publiée par la DILA sur data.gouv.fr (Licence Ouverte 2.0) : 5 573 fichiers XML, un par page de la rubrique Particuliers. [prepare_docs.py](scripts/prepare_docs.py) applique trois filtres successifs :
 
-### 2. Recherche hybride et reranking
+| Filtre | Fiches |
+| --- | ---: |
+| Fiches pratiques uniquement (`F*.xml`, sans les ressources `R` ni les pages de navigation `N`) | 3 003 |
+| Thème principal « Logement » ou « Papiers - Citoyenneté - Élections », pris en entier | 549 |
+| Texte converti d'au moins 200 caractères (pages quasi vides retirées) | **526** (333 Logement, 193 Papiers) |
+
+Chaque fiche XML est convertie en texte lisible :
+
+- **Conservé :** résumé, introduction, texte principal, listes et tableaux (une ligne par rangée, cellules séparées par « | »). Chaque chapitre, situation ou cas devient un titre `## Chapitre > Cas` qui garde le chemin complet, pour qu'un passage reste compréhensible hors contexte.
+- **Résumé en une ligne :** formulaires (avec numéro cerfa), téléservices et interlocuteurs cités.
+- **Ajouté en fin de fiche :** « Qui peut m'aider ? » et « Textes de référence ».
+- **Retiré :** URL, titres en double, annexes de formulaires et renvois vers d'autres pages (« Voir aussi », etc.), qui feraient remonter des passages citant un sujet sans en parler.
+
+Sortie : `data/raw/corpus.parquet`, une ligne par fiche (`doc_id`, `title`, `text`, `theme`, `fil_ariane`, `date`, `url`, `type`). Contrôles : 64 264 paragraphes XML sur 64 264 retrouvés dans le texte nettoyé (100 %), aucun champ vide, aucune balise restante. Le détail (répartition, longueurs, dates, limites) est dans la [data card](DATA_CARD.md#nettoyage-et-mise-en-forme).
+
+### 2. Découpage
+
+Les 526 fiches nettoyées sont séparées sur leurs titres de section `## `, puis découpées avec `split_words` du lab 05 en fenêtres de `CHUNK_SIZE = 150` mots avec `CHUNK_OVERLAP = 30` mots. Chaque passage reçoit un en-tête avec thème, titre et date, puis son chemin de section. Le découpage retenu reste sous la limite de 512 tokens de `intfloat/multilingual-e5-small`. La [section Découpage](DATA_CARD.md#découpage) justifie le choix de 150/30.
+
+### 3. Recherche hybride et reranking
 
 BM25 et la recherche dense avec `intfloat/multilingual-e5-small` dans Chroma (cosinus) produisent deux classements. RRF les fusionne avec `k = 60`, puis `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1` réordonne les candidats. L'agent reçoit quatre passages par appel `search`.
 
@@ -78,7 +98,7 @@ BM25 et la recherche dense avec `intfloat/multilingual-e5-small` dans Chroma (co
 
 Source : [retrieval_summary.csv](eval/retrieval_summary.csv). Les `gold_docs` ont été complétés à l'étape 4, voir la [data card](DATA_CARD.md#golden-set).
 
-### 3. Agent ReAct
+### 4. Agent ReAct
 
 L'agent du lab 06 échange en texte avec le modèle : `Thought:`, `Action:`, puis `Observation:` après l'exécution de l'outil.
 
@@ -92,21 +112,21 @@ L'agent du lab 06 échange en texte avec le modèle : `Thought:`, `Action:`, pui
 
 Les statuts sont `done`, `stuck`, `max_iterations` (8 tours) et `erreur` pour un échec d'appel au modèle dans l'évaluateur. Un appel identique répété reçoit un avertissement; le troisième arrête la boucle avec `stuck`. Les erreurs d'outil reviennent comme observations.
 
-### 4. Sorties structurées et validées
+### 5. Sorties structurées et validées
 
 Le modèle Pydantic `Reponse` contient `answer`, `citations` et `answerable`. Le code vérifie chaque citation contre les fiches réellement vues, rejette une réponse sans source valide et transforme `inconnu` en refus explicite. Cette validation a empêché la divulgation dans la réponse finale à q036, malgré la tentative conservée dans la trace, voir [Analyse d'erreurs](#analyse-derreurs).
 
-### 5. Traçage, tokens et coût
+### 6. Traçage, tokens et coût
 
 Chaque ligne de [results.jsonl](eval/results.jsonl) contient `id`, `type`, `split`, `question`, `expected_answer`, `generated_answer`, `answerable`, `cited_sources`, `retrieved_document_IDs`, `status`, `stop_reason`, `iterations`, `invalid_calls`, `n_llm_calls`, `n_tool_calls`, `tool_calls`, `tokens_in`, `tokens_out`, `latency_sec`, `cost_usd`, `provider`, `model` et `steps`. Les étapes gardent aussi les actions, observations, durées et tokens.
 
 Les prix API dans [config.py](src/rag_assistant/config.py) ont été relevés sur OpenRouter le 19/10/2026, en USD par million de tokens. DeepSeek v4.1 Flash coûte 0.033 en entrée et 0.080 en sortie; Gemini 2.5 Flash coûte 0.30 et 2.50. Le local est chiffré « comme si » ses tokens étaient facturés au tarif Claude Haiku 4.5 du lab 06 : 1 USD en entrée et 5 USD en sortie. Ce chiffre ne représente pas une facture Ollama.
 
-### 6. Évaluation
+### 7. Évaluation
 
 Le [golden set](eval/golden.jsonl) compte 40 questions : 20 simples, 11 conditionnelles, 4 hors corpus et 5 injections, réparties en 21 `dev` et 19 `test`. La recherche est mesurée par fiche avec Recall@5, MRR et nDCG@5. Le juge `google/gemini-2.5-flash`, d'une autre famille que les générateurs, rend `yes`, `partially` ou `no`; un appel échoué vaut `no`. Les refus attendus sont notés par une règle. Le bootstrap apparié utilise 10 000 rééchantillonnages et un intervalle à 95 %.
 
-### 7. Interface Streamlit
+### 8. Interface Streamlit
 
 [app.py](app.py) affiche un champ de discussion, la réponse ou le refus, les sources citées et un panneau de métriques : latence, appels d'outils et fiches consultées. Il initialise le même index et le même agent que l'évaluation.
 
