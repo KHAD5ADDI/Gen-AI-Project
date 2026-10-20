@@ -28,6 +28,21 @@ Projet de groupe, cours Generative AI (Lambert Fatoux), Albert School, 2026
 
 </div>
 
+> [!TIP]
+> **Lancer l'interface web (Flask)**
+>
+> 1. Démarrer Ollama avec le modèle : `ollama pull llama3.1:8b`
+> 2. Construire l'index une fois (s'il n'existe pas déjà dans `chroma_db_final/`) : `uv run python scripts/run_ingest.py`
+> 3. Lancer le serveur :
+>
+>    ```bash
+>    uv run --with flask python app_html.py
+>    ```
+>
+> 4. Ouvrir **http://localhost:5050** et attendre le badge « En ligne » (chargement de l'index et des modèles).
+>
+> Le modèle se choisit dans `.env` (`OLLAMA_MODEL`, ou `LLM_PROVIDER=openrouter` avec une clé). Sans `.env`, l'interface utilise `llama3.2:3b`. L'onglet « Fiches sources » permet de lire les fiches du corpus.
+
 ---
 
 ## Table des matières
