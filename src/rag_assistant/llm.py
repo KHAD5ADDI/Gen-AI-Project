@@ -95,5 +95,5 @@ def get_llm(provider=None, model=None):
     if provider == "ollama":
         return OllamaLLM(model or os.getenv("OLLAMA_MODEL") or "llama3.1:8b")
     if provider == "openrouter":
-        return OpenRouterLLM(model or os.getenv("OPENROUTER_MODEL") or "mistralai/mistral-small-2603")
+        return OpenRouterLLM(model or os.getenv("OPENROUTER_MODEL") or "deepseek/deepseek-v4.1-flash")
     raise ValueError(f"Fournisseur LLM inconnu : {provider}")
