@@ -19,6 +19,7 @@
 ![ChromaDB](https://img.shields.io/badge/ChromaDB-1.5.9-FF6B6B?style=flat)
 ![sentence-transformers](https://img.shields.io/badge/sentence--transformers-6.1.0-yellow?style=flat)
 ![OpenRouter](https://img.shields.io/badge/OpenRouter-API-6B46C1?style=flat)
+![Flask](https://img.shields.io/badge/Flask-3.1.3-000000?style=flat)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.66.0-FF4B4B?style=flat)
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.14.1-E92063?style=flat)
 
@@ -56,7 +57,7 @@ Projet de groupe, cours Generative AI (Lambert Fatoux), Albert School, 2026
   - [5. Sorties structurées et validées](#5-sorties-structurées-et-validées)
   - [6. Traçage, tokens et coût](#6-traçage-tokens-et-coût)
   - [7. Évaluation](#7-évaluation)
-  - [8. Interface Streamlit](#8-interface-streamlit)
+  - [8. Interface web](#8-interface-web)
 - [Résultats](#résultats)
 - [Analyse d'erreurs](#analyse-derreurs)
 - [Risques résiduels](#risques-résiduels)
@@ -141,9 +142,11 @@ Les prix API dans [config.py](src/rag_assistant/config.py) ont été relevés su
 
 Le [golden set](eval/golden.jsonl) compte 40 questions : 20 simples, 11 conditionnelles, 4 hors corpus et 5 injections, réparties en 21 `dev` et 19 `test`. La recherche est mesurée par fiche avec Recall@5, MRR et nDCG@5. Le juge `google/gemini-2.5-flash`, d'une autre famille que les générateurs, rend `yes`, `partially` ou `no`; un appel échoué vaut `no`. Les refus attendus sont notés par une règle. Le bootstrap apparié utilise 10 000 rééchantillonnages et un intervalle à 95 %.
 
-### 8. Interface Streamlit
+### 8. Interface web
 
-[app.py](app.py) affiche un champ de discussion, la réponse ou le refus, les sources citées et un panneau de métriques : latence, appels d'outils et fiches consultées. Il initialise le même index et le même agent que l'évaluation.
+L'interface principale est [app_html.py](app_html.py) (Flask) avec la page [static_html/index.html](static_html/index.html) : `uv run python app_html.py`, puis http://localhost:5050. Pour chaque question, elle affiche la réponse ou le refus, les sources en liens vers les fiches, les métriques (statut, latence, tokens, coût) et la trace complète de l'agent : chaque étape avec la pensée du modèle, l'outil appelé et l'observation, dont les passages ouvrent la fiche correspondante. L'onglet « Fiches sources » permet de chercher et de lire les 526 fiches du corpus. Les questions proposées viennent du golden set et sont réussies en local comme par API, pour que la démo montre ce que mesure l'évaluation. Le modèle est celui du `.env`, comme pour l'évaluation : `LLM_PROVIDER=openrouter` passe sur DeepSeek v4.1 Flash (environ 3 s par question contre 18 s en local), utile pour la démo en direct.
+
+[app.py](app.py) (Streamlit) reste disponible comme interface minimale : `uv run streamlit run app.py`.
 
 ## Résultats
 
@@ -254,7 +257,9 @@ Arborescence des fichiers suivis par Git, sans le contenu de `data/`, de l'index
 ├── .python-version               # Python 3.11
 ├── DATA_CARD.md                  # source et limites du corpus
 ├── README.md
-├── app.py                        # interface Streamlit
+├── app_html.py                   # interface web Flask (principale)
+├── static_html/                  # page HTML, polices et logo de l'interface
+├── app.py                        # interface Streamlit minimale
 ├── pyproject.toml                # projet et dépendances
 ├── uv.lock                       # versions résolues
 ├── requirements.txt              # export pour pip
@@ -332,7 +337,7 @@ Prérequis : Python 3.11, `uv`, Ollama, 16 Go de RAM pour le modèle local par d
 
    ```bash
    uv run python eval/eval_retrieval.py --golden eval/golden.jsonl --out eval/
-   uv run streamlit run app.py
+   uv run python app_html.py        # interface web, http://localhost:5050
    uv run pytest -q
    ```
 
@@ -365,7 +370,7 @@ Versions du [verrou de dépendances](uv.lock) pour Python 3.11 :
 | rank-bm25 | 0.2.2 | openai | 2.54.0 |
 | ollama | 0.6.3 | pydantic | 2.14.1 |
 | pandas | 3.0.6 | numpy | 2.4.6 |
-| streamlit | 1.66.0 | | |
+| streamlit | 1.66.0 | flask | 3.1.3 |
 
 Le fournisseur et le modèle se choisissent dans `.env` avec `LLM_PROVIDER`, `OLLAMA_MODEL` et `OPENROUTER_MODEL`; `LLM_NUM_CTX` et `LLM_TIMEOUT` règlent la fenêtre et le délai. La température est 0. Ollama utilise `num_ctx = 8192` par défaut, même si le contexte natif annoncé est supérieur. Le raisonnement caché de DeepSeek est désactivé : l'agent attend un protocole ReAct en texte, alors que ce mode avait renvoyé un contenu textuel vide.
 

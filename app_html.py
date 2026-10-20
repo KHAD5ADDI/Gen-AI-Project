@@ -1,7 +1,8 @@
-"""Interface Flask + HTML pour tester l'agent ReAct (branche ewan, fichiers d'Ewan inchangés).
+"""Interface Flask + HTML de l'agent ReAct : réponse, sources, trace et fiches du corpus.
 
-Lancement : python app_html.py   puis http://localhost:5050
-Variables optionnelles : OLLAMA_MODEL, LLM_PROVIDER, APP_CHROMA_DIR (voir .env.example).
+Lancement : uv run python app_html.py   puis http://localhost:5050
+Le modèle se choisit dans .env (LLM_PROVIDER, OLLAMA_MODEL, OPENROUTER_MODEL), comme pour l'évaluation.
+Variable optionnelle : APP_CHROMA_DIR (dossier de l'index, chroma_db_final par défaut).
 """
 import html
 import os
@@ -19,8 +20,8 @@ os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
 
-import torch  # noqa: E402,F401  (chargé avant ChromaDB, nécessaire sous Windows)
-from flask import Flask, jsonify, request, send_from_directory  # noqa: E402
+import torch  # noqa: F401  (chargé avant ChromaDB, nécessaire sous Windows)
+from flask import Flask, jsonify, request, send_from_directory
 
 app = Flask(__name__, static_folder="static_html")
 
@@ -36,21 +37,12 @@ def load_system():
 
         chroma_dir = os.getenv("APP_CHROMA_DIR", str(ROOT / "chroma_db_final"))
         print(f"Index : {chroma_dir}", flush=True)
-        try:
-            pipeline = IngestionPipeline(persist_directory=chroma_dir)
-        except RuntimeError:
-            # Ancien index sans champ « body » : on le lit tel quel, sans le reconstruire.
-            pipeline = IngestionPipeline(persist_directory=chroma_dir, load_docstore=False)
-            data = pipeline.collection.get(include=["documents", "metadatas"])
-            pipeline.docstore = {
-                cid: {**(meta or {}), "chunk_id": cid, "text": doc, "body": doc}
-                for cid, meta, doc in zip(data["ids"], data["metadatas"], data["documents"])
-            }
+        # Un ancien index lève une erreur (affichée dans le badge) : le reconstruire avec
+        # scripts/run_ingest.py, pour que l'interface utilise les mêmes passages que l'évaluation.
+        pipeline = IngestionPipeline(persist_directory=chroma_dir)
         print(f"Index OK ({len(pipeline.docstore)} passages). Chargement du retriever...", flush=True)
         state["retriever"] = HybridRetriever(ingestion_pipeline=pipeline)
-        provider = os.getenv("LLM_PROVIDER", "ollama")
-        model = os.getenv("OLLAMA_MODEL", "llama3.2:3b") if provider == "ollama" else None
-        state["llm"] = get_llm(provider=provider, model=model)
+        state["llm"] = get_llm()  # même choix de modèle que l'évaluation (.env)
         state["ready"] = True
         print(f"Système prêt ({state['llm'].provider} / {state['llm'].name}).", flush=True)
     except Exception as err:  # noqa: BLE001
@@ -85,7 +77,7 @@ def list_docs():
         df = df[df["_search"].str.contains(query, regex=False)]
     rows = df.head(100)[["doc_id", "title", "theme", "date"]].to_dict(orient="records")
     return jsonify({
-        "total": int(len(df)),
+        "total": len(df),
         "themes": sorted(get_corpus()["theme"].unique().tolist()),
         "docs": rows,
     })

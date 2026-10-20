@@ -317,11 +317,13 @@
 </footer>
 
 <script>
+// Questions du golden set (eval/golden.jsonl) réussies en local et par API : la démo montre ce que mesure l'évaluation.
 const SUGGESTIONS = [
-  ["Dépôt de garantie", "Quel est le délai de restitution du dépôt de garantie ?"],
-  ["Congé du locataire", "Quel est le préavis pour quitter un logement meublé ?"],
-  ["Aides au logement", "Qu'est-ce que l'avance Loca-Pass ?"],
-  ["Élections", "Combien de procurations un électeur peut-il recevoir ?"],
+  ["Copropriété", "Dans ma copropriété, on parle du syndic et du syndicat : est-ce que c'est la même chose ?"],
+  ["Papiers", "Combien coûte le timbre fiscal pour remplacer le passeport volé d'un enfant de 16 ans ?"],
+  ["Urbanisme", "Faut-il une autorisation d'urbanisme pour installer en zone agricole une serre de moins de 1,80 m de haut, hors secteur protégé ?"],
+  ["Élections", "Peut-on voter avec une carte d'identité périmée depuis 3 ans ?"],
+  ["Hors corpus", "Quelle est la recette de la quiche lorraine ?"],
 ];
 const FICHE_URL = id => "https://www.service-public.gouv.fr/particuliers/vosdroits/" + encodeURIComponent(id);
 
