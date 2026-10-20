@@ -1,5 +1,6 @@
 config,questions,Recall@5,MRR,nDCG@5
-dense,33,0.886,0.788,0.792
+dense,33,0.879,0.765,0.779
 bm25,33,0.856,0.687,0.709
-hybride (RRF),33,0.917,0.833,0.840
-hybride + rerank,33,0.985,0.910,0.920
+hybride (RRF),33,0.909,0.833,0.832
+hybride + rerank,33,0.985,0.895,0.908
+hybride + rerank + filtre thème,33,0.985,0.915,0.924

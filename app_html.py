@@ -54,6 +54,7 @@ def load_system():
 CORPUS_PATH = ROOT / "data" / "raw" / "corpus.parquet"
 _corpus = {"df": None}
 DOC_ID = re.compile(r"^F\d+$")
+THEMES = ("Logement", "Papiers - Citoyenneté - Élections")
 
 
 def get_corpus():
@@ -80,6 +81,16 @@ def list_docs():
         "total": len(df),
         "themes": sorted(get_corpus()["theme"].unique().tolist()),
         "docs": rows,
+    })
+
+
+@app.route("/api/filtres")
+def list_filtres():
+    """Liste les thèmes et années disponibles dans le corpus."""
+    df = get_corpus()
+    return jsonify({
+        "themes": sorted(df["theme"].unique().tolist()),
+        "annees": sorted(df["date"].str[:4].astype(int).unique().tolist(), reverse=True),
     })
 
 
@@ -116,9 +127,17 @@ def status():
 def ask():
     if not state["ready"]:
         return jsonify({"error": "Système en cours de chargement, réessaie dans quelques secondes."}), 503
-    question = ((request.get_json(silent=True) or {}).get("question") or "").strip()
+    data = request.get_json(silent=True) or {}
+    question = (data.get("question") or "").strip()
     if not question:
         return jsonify({"error": "Question vide."}), 400
+    theme = data.get("theme")
+    year = data.get("since")
+    if theme is not None and theme not in THEMES:
+        return jsonify({"error": "Thème inconnu."}), 400
+    if year is not None and (type(year) is not int or not 2000 <= year <= 2100):
+        return jsonify({"error": "Année invalide : choisissez une année entre 2000 et 2100."}), 400
+    since = year * 10000 + 101 if year is not None else None
 
     from rag_assistant.agent import run_agent
     from rag_assistant.tracing import Trace, cout_usd
@@ -128,7 +147,10 @@ def ask():
     with ask_lock:
         start = time.perf_counter()
         try:
-            reponse, seen = run_agent(llm, state["retriever"], question, trace)
+            if theme is None and since is None:
+                reponse, seen = run_agent(llm, state["retriever"], question, trace)
+            else:
+                reponse, seen = run_agent(llm, state["retriever"], question, trace, theme=theme, since=since)
         except Exception as err:  # noqa: BLE001
             traceback.print_exc()
             return jsonify({"error": f"Erreur de l'agent : {err}"}), 500
@@ -153,6 +175,8 @@ def ask():
         "answer": reponse.answer,
         "citations": reponse.citations,
         "answerable": reponse.answerable,
+        "theme": theme,
+        "since": year,
         "docs": seen,
         "latency": latency,
         "status": trace.status,

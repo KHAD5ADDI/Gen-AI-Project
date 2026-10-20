@@ -1,6 +1,6 @@
-"""Évalue Recall@5, MRR et nDCG@5 des fiches attendues pour quatre configurations.
+"""Évalue Recall@5, MRR et nDCG@5 des fiches attendues pour cinq configurations.
 
-Configurations : dense, BM25, hybride RRF et hybride + rerank.
+Configurations : dense, BM25, hybride RRF, hybride + rerank et filtre thème.
 Les questions sans gold_docs sont ignorées. Les métriques sont calculées par fiche
 sur les 30 passages utilisés par le pipeline.
 
@@ -21,7 +21,7 @@ from rag_assistant.ingest import IngestionPipeline
 from rag_assistant.retrieval import HybridRetriever, rrf
 
 PRE_K = 30  # même valeur que dans HybridRetriever.search
-CONFIGS = ("dense", "bm25", "hybride (RRF)", "hybride + rerank")
+CONFIGS = ("dense", "bm25", "hybride (RRF)", "hybride + rerank", "hybride + rerank + filtre thème")
 
 
 def charger_questions(path):
@@ -37,18 +37,22 @@ def charger_questions(path):
 
 
 def evaluer(questions, ret):
-    """Évalue les quatre classements de chaque question."""
+    """Évalue les cinq classements de chaque question."""
     rows = []
     misses = []
+    themes = {chunk["doc_id"]: chunk["theme"] for chunk in ret.docstore.values()}
     for q in questions:
         question = q["question"]
         dense = ret.dense_search(question, top_n=PRE_K)
         bm25 = ret.bm25_search(question, top_n=PRE_K)
+        # Filtre oracle : le thème de la première fiche attendue est choisi par l'utilisateur.
+        theme = themes[q["gold_docs"][0]]
         rankings = (
             dense,
             bm25,
             rrf([dense, bm25], k=60, depth=PRE_K),
             [c["chunk_id"] for c in ret.search(question, top_k=PRE_K)],
+            [c["chunk_id"] for c in ret.search(question, top_k=PRE_K, theme=theme)],
         )
         for config, ranking in zip(CONFIGS, rankings):
             documents = fiches(ranking)
@@ -104,6 +108,7 @@ def main():
     summary = resume(rows)
 
     print(f"Résumé ({len(questions)} questions) :")
+    print("Note : le filtre thème est oracle, car l'utilisateur choisit le bon thème.")
     print(tableau(summary))
     types = list(dict.fromkeys(q.get("type", "-") for q in questions))
     if len(types) > 1:

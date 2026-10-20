@@ -172,20 +172,20 @@ def agent_loop(question, llm, tools, seen, max_iterations=8):
     return result
 
 
-def run_agent(llm, retriever, question, trace=None, max_iterations=8):
+def run_agent(llm, retriever, question, trace=None, max_iterations=8, theme=None, since=None):
     """Renvoie la réponse de l'application et les fiches consultées."""
     seen = []
-    tools = make_tools(retriever, seen)
+    tools = make_tools(retriever, seen, theme=theme, since=since) if theme is not None or since is not None else make_tools(retriever, seen)
     result = agent_loop(question, llm, tools, seen, max_iterations)
     if trace is not None:
         trace.record(result)
     return result["reponse"], seen
 
 
-def answer(llm, retriever, question, max_iterations=8):
+def answer(llm, retriever, question, max_iterations=8, theme=None, since=None):
     """Renvoie le résultat détaillé pour l'évaluation."""
     seen = []
-    tools = make_tools(retriever, seen)
+    tools = make_tools(retriever, seen, theme=theme, since=since) if theme is not None or since is not None else make_tools(retriever, seen)
     result = agent_loop(question, llm, tools, seen, max_iterations)
     result["retrieved"] = seen
     return result

@@ -28,7 +28,7 @@ class IngestionPipeline:
         data = self.collection.get(include=["documents", "metadatas"])
         if data["metadatas"]:
             first_metadata = data["metadatas"][0] or {}
-            if "body" not in first_metadata or "embed_model" not in first_metadata:
+            if any(key not in first_metadata for key in ("body", "embed_model", "date_num")):
                 raise RuntimeError(
                     "Cet index utilise l'ancien découpage. Reconstruisez-le avec uv run python scripts/run_ingest.py."
                 )
@@ -59,6 +59,8 @@ class IngestionPipeline:
         metadatas = []
         for chunk in all_chunks:
             metadata = {key: value for key, value in chunk.items() if key != "text"}
+            # Chroma compare des nombres, pas des dates sous forme de texte.
+            metadata["date_num"] = int(chunk["date"].replace("-", ""))
             metadata["embed_model"] = EMBED_MODEL
             metadata["chunk_size"] = size
             metadata["chunk_overlap"] = overlap
