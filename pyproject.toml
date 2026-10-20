@@ -1,0 +1,45 @@
+[project]
+name = "rag-assistant"
+version = "0.1.0"
+description = "Assistant RAG et agent sur les fiches pratiques Service-Public (Logement, Papiers-Citoyenneté)"
+readme = "README.md"
+requires-python = ">=3.11"
+# llama-index casse souvent son API entre versions mineures : on reste sur la mineure testée
+dependencies = [
+    "chromadb>=1.5.9",
+    "llama-index-core>=0.14.25,<0.15",
+    "llama-index-llms-huggingface-api>=0.8.0,<0.9",
+    "llama-index-llms-ollama>=0.11.0,<0.12",
+    "llama-index-llms-openai>=0.8.3,<0.9",
+    "llama-index-llms-openai-like>=0.8.1,<0.9",
+    "numpy>=2.4.6",
+    "ollama>=0.6.3",
+    "openai>=2.54.0",
+    "pandas>=3.0.6",
+    "pyarrow>=26.0.0",
+    "pydantic>=2.14.1",
+    "python-dotenv>=1.2.4",
+    "rank-bm25>=0.2.2",
+    "sentence-transformers>=6.1.0",
+    "streamlit>=1.66.0",
+]
+
+# Le code est un vrai package Python (src/rag_assistant) : uv sync l'installe en mode éditable,
+# donc « from rag_assistant import ... » marche depuis n'importe quel dossier, sans sys.path.
+[build-system]
+requires = ["uv_build>=0.12.24,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.17.1",
+]

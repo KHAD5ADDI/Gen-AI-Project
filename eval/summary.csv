@@ -1,0 +1,5 @@
+config,questions,score_juge,score_juge_test,refus_corrects,reponses_appuyees,recall@5,mrr,ndcg@5,fiche_citee,iterations_moy,iterations_max,appels_invalides,statuts,tokens_in_moy,tokens_out_moy,usd_par_question,usd_juge_total,latence_mediane_s
+ollama/llama3.1:8b,40,0.537,0.474,7/7,0.895,0.891,0.885,0.862,0.485,3.5,8,0.036,"done 25, stuck 14, max_iterations 1",6927.775,192.5,0.0079,0.0107,18.037
+ollama/llama3.2:1b,40,0.175,0.158,7/7,0.0,0.333,0.343,0.326,0.0,4.775,8,0.366,"max_iterations 4, stuck 36",6533.075,386.725,0.0085,0.0,3.524
+ollama/llama3.2:3b,40,0.338,0.316,7/7,0.7,0.909,0.889,0.879,0.303,4.25,8,0.094,"done 16, stuck 23, max_iterations 1",8814.825,249.625,0.0101,0.0046,10.583
+openrouter/deepseek/deepseek-v4.1-flash,40,0.988,0.974,7/7,1.0,0.899,0.904,0.883,0.939,2.025,4,0.0,done 40,2744.825,171.975,0.0001,0.0201,2.998

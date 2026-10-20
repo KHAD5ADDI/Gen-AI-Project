@@ -1,59 +1,41 @@
-import time
-from llama_index.core.llms import ChatMessage
+"""Trace minimale de la boucle ReAct."""
+
+from rag_assistant.config import price_for
+
+
+def cout_usd(tokens_in, tokens_out, provider, model):
+    """Calcule le coût estimé en dollars."""
+    price_in, price_out = price_for(provider, model)
+    return round((tokens_in * price_in + tokens_out * price_out) / 1_000_000, 6)
 
 
 class Trace:
+    """Conserve les étapes, outils, tokens et durée d'une question."""
+
     def __init__(self):
+        self.steps = []
         self.tool_calls = []
-        self.errors = []
-        self.llm_calls = []
-        self.retrieved_passages = []
+        self.status = None
+        self.tokens_in = 0
+        self.tokens_out = 0
+        self.seconds = 0.0
 
-    def record_tool(self, name, kwargs, duration, output_len):
-        self.tool_calls.append({
-            "name": name,
-            "kwargs": kwargs,
-            "duration": round(duration, 3),
-            "output_len": output_len,
-        })
-
-    def record_llm(self, purpose, duration, input_tokens, output_tokens, stop_reason):
-        self.llm_calls.append({
-            "purpose": purpose,
-            "duration": round(duration, 3),
-            "input_tokens": input_tokens,
-            "output_tokens": output_tokens,
-            "stop_reason": stop_reason,
-        })
-
-    def record_passages(self, chunks):
-        self.retrieved_passages = [
-            {"doc_id": c["doc_id"], "chunk_id": c["chunk_id"], "title": c.get("title", "")}
-            for c in chunks
+    def record(self, result):
+        """Copie les compteurs et les vrais appels d'outils."""
+        self.steps = result["steps"]
+        self.status = result["status"]
+        self.tokens_in = result["tokens_in"]
+        self.tokens_out = result["tokens_out"]
+        self.seconds = result["seconds"]
+        self.tool_calls = [
+            {
+                "tool": step["action"][0],
+                "input": step["action"][1],
+                "seconds": step["tool_seconds"],
+                "output_chars": step["output_chars"],
+            }
+            for step in self.steps
+            if step["action"] is not None
+            and step["action"][0] != "final_answer"
+            and step["tool_seconds"] is not None
         ]
-
-    @property
-    def total_tokens(self):
-        return sum(c.get("input_tokens", 0) + c.get("output_tokens", 0) for c in self.llm_calls)
-
-    @property
-    def total_llm_latency(self):
-        return round(sum(c.get("duration", 0) for c in self.llm_calls), 3)
-
-
-def chat(llm, messages, trace, purpose="default", tools=None):
-    t0 = time.perf_counter()
-    if tools:
-        response = llm.chat_with_tools(tools, chat_history=messages)
-    else:
-        response = llm.chat(messages)
-    duration = time.perf_counter() - t0
-
-    raw = getattr(response, "raw", {}) or {}
-    usage = raw.get("usage", {}) or {}
-    input_tokens = usage.get("prompt_tokens", 0)
-    output_tokens = usage.get("completion_tokens", 0)
-    stop_reason = raw.get("stop_reason") or raw.get("finish_reason", "unknown")
-
-    trace.record_llm(purpose, duration, input_tokens, output_tokens, stop_reason)
-    return response

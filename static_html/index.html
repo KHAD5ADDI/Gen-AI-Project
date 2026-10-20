@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistant Service-Public</title>
+<style>
+  @font-face { font-family: Marianne; font-weight: 400; font-style: normal; font-display: swap; src: url("/static_html/fonts/Marianne-Regular.woff2") format("woff2"); }
+  @font-face { font-family: Marianne; font-weight: 400; font-style: italic; font-display: swap; src: url("/static_html/fonts/Marianne-Regular_Italic.woff2") format("woff2"); }
+  @font-face { font-family: Marianne; font-weight: 500; font-style: normal; font-display: swap; src: url("/static_html/fonts/Marianne-Medium.woff2") format("woff2"); }
+  @font-face { font-family: Marianne; font-weight: 700; font-style: normal; font-display: swap; src: url("/static_html/fonts/Marianne-Bold.woff2") format("woff2"); }
+  @font-face { font-family: Marianne; font-weight: 800; font-style: normal; font-display: swap; src: url("/static_html/fonts/Marianne-ExtraBold.woff2") format("woff2"); }
+
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f6f6f6;
+    --text: #161616;
+    --muted: #666666;
+    --border: #dddddd;
+    --accent: #000091;
+    --accent-hover: #1212ff;
+    --accent-soft: #e3e3fd;
+    --accent-faint: #f5f5fe;
+    --on-accent: #ffffff;
+    --red: #e1000f;
+    --input-bg: #eeeeee;
+    --input-line: #3a3a3a;
+    --ok-bg: #b8fec9; --ok-text: #18753c;
+    --wait-bg: #feebd0; --wait-text: #b34000;
+    --err-bg: #ffe9e9; --err-text: #ce0500;
+    --warn-line: #b34000; --warn-bg: #fff4ee;
+    --focus: #0a76f6;
+    --shadow: 0 6px 18px rgba(0, 0, 18, .16);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161616; --surface: #1e1e1e; --surface-2: #242424; --text: #f6f6f6; --muted: #a8a8a8; --border: #3a3a3a;
+      --accent: #8585f6; --accent-hover: #a5a5fa; --accent-soft: #2b2b5c; --accent-faint: #1d1d3a; --on-accent: #161616;
+      --red: #ff5655; --input-bg: #2a2a2a; --input-line: #cecece;
+      --ok-bg: #0f3f23; --ok-text: #6fe09a; --wait-bg: #4a2a0a; --wait-text: #ffb27a; --err-bg: #4a1414; --err-text: #ff9a98;
+      --warn-line: #ffb27a; --warn-bg: #2d1f14; --shadow: 0 6px 18px rgba(0, 0, 0, .5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161616; --surface: #1e1e1e; --surface-2: #242424; --text: #f6f6f6; --muted: #a8a8a8; --border: #3a3a3a;
+    --accent: #8585f6; --accent-hover: #a5a5fa; --accent-soft: #2b2b5c; --accent-faint: #1d1d3a; --on-accent: #161616;
+    --red: #ff5655; --input-bg: #2a2a2a; --input-line: #cecece;
+    --ok-bg: #0f3f23; --ok-text: #6fe09a; --wait-bg: #4a2a0a; --wait-text: #ffb27a; --err-bg: #4a1414; --err-text: #ff9a98;
+    --warn-line: #ffb27a; --warn-bg: #2d1f14; --shadow: 0 6px 18px rgba(0, 0, 0, .5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: Marianne, Arial, "Helvetica Neue", Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button { font-family: inherit; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 16px; width: 100%; }
+
+  /* ---------- En-tête ---------- */
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  header { background: var(--surface); }
+  .header-inner { display: flex; align-items: center; gap: 12px; padding-top: 14px; padding-bottom: 14px; flex-wrap: wrap; }
+  .brand { flex: 1 1 260px; min-width: 0; }
+  .brand img { display: block; height: 64px; width: auto; max-width: 100%; }
+  :root[data-theme="dark"] .brand img { background: #fff; padding: 6px 10px; border-radius: 4px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .brand img { background: #fff; padding: 6px 10px; border-radius: 4px; } }
+  .wordmark { font-size: 1.7rem; line-height: 1.1; font-weight: 800; letter-spacing: -.01em; color: var(--accent); }
+  .wordmark span { color: var(--red); }
+  .brand p { font-size: .8rem; color: var(--muted); margin-top: 3px; }
+  .header-tools { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em;
+    padding: 2px 10px; border-radius: 4px; background: var(--wait-bg); color: var(--wait-text); max-width: 60vw;
+  }
+  .badge #status-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: none; font-weight: 600; }
+  .badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; animation: pulse 1.4s ease-in-out infinite; }
+  .badge.ready { background: var(--ok-bg); color: var(--ok-text); }
+  .badge.ready::before { animation: none; }
+  .badge.error { background: var(--err-bg); color: var(--err-text); }
+  .badge.error::before { animation: none; }
+  @keyframes pulse { 50% { opacity: .3; } }
+  .link-btn {
+    display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--accent); cursor: pointer;
+    font-size: .88rem; font-weight: 500; padding: 8px 10px; border-radius: 4px;
+  }
+  .link-btn:hover { background: var(--accent-faint); }
+
+  /* ---------- Navigation ---------- */
+  nav { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0, 0, 18, .06); }
+  .nav-inner { display: flex; gap: 0; }
+  .nav-item {
+    background: none; border: none; border-bottom: 3px solid transparent; padding: 14px 20px; cursor: pointer;
+    font-size: 1rem; color: var(--text); font-weight: 400;
+  }
+  .nav-item:hover { background: var(--accent-faint); }
+  .nav-item[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+
+  .breadcrumb { font-size: .8rem; color: var(--muted); padding: 14px 0 0; }
+  .breadcrumb a { color: var(--muted); text-decoration: underline; }
+
+  /* ---------- Contenu ---------- */
+  main { flex: 1; padding-bottom: 8px; }
+  .page-title { font-size: 2rem; font-weight: 700; margin: 24px 0 8px; line-height: 1.2; }
+  .lead { font-size: 1.1rem; color: var(--text); max-width: 640px; }
+  .callout {
+    margin: 20px 0 8px; padding: 14px 18px 14px 16px; background: var(--accent-faint); border-left: 4px solid var(--accent);
+    font-size: .88rem; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .callout svg { flex: none; margin-top: 2px; color: var(--accent); }
+  .callout b { display: block; margin-bottom: 2px; }
+
+  .section-title { font-size: 1.15rem; font-weight: 700; margin: 28px 0 12px; }
+  .suggestions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; }
+  .suggestion {
+    background: var(--surface); border: 1px solid var(--border); border-bottom: 3px solid var(--accent); padding: 16px 18px; text-align: left;
+    color: var(--text); font-size: .95rem; cursor: pointer; display: flex; flex-direction: column; gap: 6px; position: relative; padding-right: 40px;
+  }
+  .suggestion small { color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+  .suggestion span { color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .suggestion::after { content: "→"; position: absolute; right: 16px; bottom: 14px; color: var(--accent); font-size: 1.2rem; }
+  .suggestion:hover:not(:disabled) { background: var(--accent-faint); }
+  .suggestion:disabled { opacity: .5; cursor: not-allowed; }
+
+  #chat { display: flex; flex-direction: column; gap: 18px; padding: 8px 0 14px; }
+  .row { display: flex; animation: rise .2s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(5px); } }
+  .row.user { justify-content: flex-end; }
+  .bubble { max-width: min(680px, 100%); padding: 14px 18px; }
+  .user .bubble { background: var(--accent-soft); border-radius: 4px 4px 0 4px; font-weight: 500; }
+  .bot .bubble { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 4px 4px 0; min-width: 0; flex: 0 1 auto; }
+  .bot.refus .bubble { background: var(--warn-bg); border-left-color: var(--warn-line); border-color: var(--warn-line); }
+  .bot.refus .bubble::before { content: "Information non trouvée"; display: block; font-weight: 700; font-size: .82rem; color: var(--warn-line); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .03em; }
+  .answer { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 1rem; }
+
+  .sources { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .sources .label { font-size: .8rem; color: var(--muted); font-weight: 700; }
+  .chip {
+    font-size: .8rem; font-weight: 500; padding: 2px 10px; border-radius: 4px; border: none; cursor: pointer;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .chip:hover { background: var(--accent); color: var(--on-accent); }
+
+  details.steps { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
+  details.steps summary { cursor: pointer; font-size: .86rem; font-weight: 500; color: var(--accent); list-style: none; display: flex; align-items: center; gap: 6px; }
+  details.steps summary::-webkit-details-marker { display: none; }
+  details.steps summary::before { content: "▸"; transition: transform .15s; display: inline-block; }
+  details.steps[open] summary::before { transform: rotate(90deg); }
+  .metrics { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .metric { font-size: .74rem; color: var(--text); background: var(--surface-2); border-radius: 4px; padding: 2px 8px; }
+  .timeline { margin-top: 14px; padding-left: 14px; border-left: 2px solid var(--border); display: flex; flex-direction: column; gap: 14px; }
+  .step { position: relative; font-size: .86rem; }
+  .step::before { content: ""; position: absolute; left: -21px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
+  .step-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .step-head b { font-size: .82rem; }
+  .tool { font-size: .72rem; font-weight: 700; padding: 1px 8px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); font-family: ui-monospace, Consolas, monospace; }
+  .tool.final { background: var(--ok-bg); color: var(--ok-text); }
+  .step-time { font-size: .74rem; color: var(--muted); }
+  .thought { margin-top: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .obs { margin-top: 6px; font-size: .78rem; color: var(--muted); background: var(--surface-2); border-radius: 4px; padding: 8px 12px;
+         font-family: ui-monospace, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 150px; overflow: auto; }
+
+  .typing { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .94rem; }
+  .dots { display: inline-flex; gap: 4px; flex: none; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: bounce 1.2s infinite ease-in-out; }
+  .dots i:nth-child(2) { animation-delay: .15s; } .dots i:nth-child(3) { animation-delay: .3s; }
+  @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: .4; } 40% { transform: translateY(-5px); opacity: 1; } }
+  .timer { white-space: nowrap; flex: none; font-variant-numeric: tabular-nums; font-size: .78rem; background: var(--surface-2); padding: 1px 8px; border-radius: 4px; }
+
+  /* ---------- Panneau Documents ---------- */
+  .scrim { position: fixed; inset: 0; background: rgba(22, 22, 22, .6); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 20; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 100%); z-index: 21;
+    background: var(--surface); box-shadow: var(--shadow); display: flex; flex-direction: column; transform: translateX(105%); transition: transform .25s ease;
+  }
+  .drawer.open { transform: none; }
+  .drawer-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); border-top: 4px solid var(--accent); }
+  .drawer-head h2 { flex: 1; min-width: 0; font-size: 1.05rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .icon-btn { width: 36px; height: 36px; border: none; background: none; color: var(--accent); cursor: pointer; display: grid; place-items: center; border-radius: 4px; flex: none; }
+  .icon-btn:hover { background: var(--accent-faint); }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 16px 16px 28px; }
+  .drawer-body[hidden], #doc-back[hidden] { display: none; }
+  .field {
+    width: 100%; padding: 10px 14px; margin-bottom: 10px; border: none; border-bottom: 2px solid var(--input-line); border-radius: 4px 4px 0 0;
+    background: var(--input-bg); color: var(--text); font: inherit; font-size: .95rem; outline-offset: 2px;
+  }
+  .doc-count { font-size: .78rem; color: var(--muted); margin: 2px 2px 8px; }
+  .doc-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .doc-item { width: 100%; text-align: left; font: inherit; color: var(--text); cursor: pointer; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 10px 14px; }
+  .doc-item:hover { background: var(--accent-faint); }
+  .doc-item b { display: block; font-size: .92rem; font-weight: 600; color: var(--accent); }
+  .doc-item span { font-size: .74rem; color: var(--muted); }
+  .doc-meta { font-size: .8rem; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .doc-ext { display: inline-block; margin: 4px 0 16px; font-size: .86rem; color: var(--accent); font-weight: 500; }
+  .doc-text h3 { font-size: 1.02rem; margin: 20px 0 6px; color: var(--accent); font-weight: 700; }
+  .doc-text p { font-size: .94rem; margin: 0 0 8px; overflow-wrap: anywhere; }
+  .doc-text ul { margin: 0 0 8px 18px; font-size: .94rem; }
+  .doc-text li { margin-bottom: 3px; overflow-wrap: anywhere; }
+
+  /* ---------- Zone de saisie ---------- */
+  footer { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -2px 8px rgba(0, 0, 18, .06); padding: 12px 0 10px; }
+  .composer { display: flex; align-items: stretch; }
+  #input {
+    flex: 1; min-width: 0; border: none; border-bottom: 2px solid var(--input-line); border-radius: 4px 0 0 0; outline-offset: 2px;
+    background: var(--input-bg); color: var(--text); font: inherit; font-size: 1rem; font-style: italic; resize: none; max-height: 140px; padding: 14px 16px; height: 52px; overflow-y: hidden;
+  }
+  #input:not(:placeholder-shown) { font-style: normal; }
+  #input::placeholder { color: var(--muted); }
+  #btn {
+    border: none; cursor: pointer; flex: none; display: inline-flex; align-items: center; gap: 8px; padding: 0 20px;
+    background: var(--accent); color: var(--on-accent); font-size: 1rem; font-weight: 500; border-radius: 0 4px 0 0;
+  }
+  #btn:hover:not(:disabled) { background: var(--accent-hover); }
+  #btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .legal { margin-top: 8px; text-align: center; font-size: .72rem; color: var(--muted); }
+
+  @media (max-width: 560px) {
+    .page-title { font-size: 1.55rem; }
+    .brand img { height: 48px; }
+    .nav-item { padding: 12px 14px; font-size: .92rem; }
+    #btn span { display: none; }
+    #btn { padding: 0 16px; }
+    .legal { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap header-inner">
+    <div class="brand">
+      <h1 class="sr-only">Service Public, assistant d'information</h1>
+      <img id="logo" src="/static_html/logo.png" alt="République Française, Service Public" onerror="this.remove(); document.getElementById('wordmark').hidden = false;">
+      <div id="wordmark" hidden>
+        <div class="wordmark">Service<span>·</span>Public</div>
+        <p>Assistant d'information sur vos droits et démarches</p>
+      </div>
+    </div>
+    <div class="header-tools">
+      <span id="status" class="badge"><span id="status-text">Chargement…</span></span>
+      <button class="link-btn" id="theme" title="Changer de thème d'affichage">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        Thème
+      </button>
+      <button class="link-btn" id="clear" title="Nouvelle conversation">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Nouvelle question
+      </button>
+    </div>
+  </div>
+</header>
+<nav aria-label="Navigation principale">
+  <div class="wrap nav-inner">
+    <button class="nav-item" id="nav-chat" aria-current="page">Poser une question</button>
+    <button class="nav-item" id="open-docs">Fiches sources</button>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div class="breadcrumb"><a href="/">Accueil</a> &nbsp;›&nbsp; Assistant</div>
+  <section id="welcome">
+    <h2 class="page-title">Posez votre question</h2>
+    <p class="lead">Logement, papiers, citoyenneté, élections : l'assistant répond à partir des fiches pratiques Service-Public et cite ses sources.</p>
+    <div class="callout">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div><b>Projet étudiant Albert School, service non officiel</b>Les réponses sont générées automatiquement à partir des fiches Service-Public (Licence Ouverte 2.0). Si l'information n'est pas dans les fiches, l'assistant le dit. Vérifiez toujours sur le site officiel.</div>
+    </div>
+    <h3 class="section-title">Questions fréquentes</h3>
+    <div class="suggestions" id="suggestions"></div>
+  </section>
+  <div id="chat" aria-live="polite"></div>
+</main>
+
+<div id="scrim" class="scrim"></div>
+<aside id="drawer" class="drawer" aria-hidden="true" aria-label="Fiches sources">
+  <div class="drawer-head">
+    <button class="icon-btn" id="doc-back" title="Retour à la liste" aria-label="Retour à la liste" hidden>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h2 id="drawer-title">Fiches sources</h2>
+    <button class="icon-btn" id="drawer-close" title="Fermer" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="doc-list-view" class="drawer-body">
+    <input id="doc-q" class="field" type="search" placeholder="Rechercher dans les fiches…" autocomplete="off">
+    <select id="doc-theme" class="field"><option value="">Tous les thèmes</option></select>
+    <p id="doc-count" class="doc-count"></p>
+    <ul id="doc-list" class="doc-list"></ul>
+  </div>
+  <div id="doc-view" class="drawer-body" hidden></div>
+</aside>
+
+<footer>
+  <div class="wrap">
+    <div class="composer">
+      <textarea id="input" rows="1" placeholder="Chargement…" disabled aria-label="Votre question"></textarea>
+      <button id="btn" disabled aria-label="Envoyer la question">
+        <span>Envoyer</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <p class="legal">Entrée pour envoyer · Maj+Entrée pour un retour à la ligne · Projet pédagogique Albert School, données Service-Public (Licence Ouverte 2.0)</p>
+  </div>
+</footer>
+
+<script>
+const SUGGESTIONS = [
+  ["Dépôt de garantie", "Quel est le délai de restitution du dépôt de garantie ?"],
+  ["Congé du locataire", "Quel est le préavis pour quitter un logement meublé ?"],
+  ["Aides au logement", "Qu'est-ce que l'avance Loca-Pass ?"],
+  ["Élections", "Combien de procurations un électeur peut-il recevoir ?"],
+];
+const FICHE_URL = id => "https://www.service-public.gouv.fr/particuliers/vosdroits/" + encodeURIComponent(id);
+
+const $ = id => document.getElementById(id);
+const chat = $("chat"), input = $("input"), btn = $("btn"), welcome = $("welcome");
+let ready = false, busy = false;
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function safeStore(fn) { try { return fn(); } catch { return null; } }
+
+/* Thème */
+function applyTheme(t) { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
+applyTheme(safeStore(() => localStorage.getItem("theme")));
+$("theme").onclick = () => {
+  const dark = document.documentElement.dataset.theme
+    ? document.documentElement.dataset.theme === "dark"
+    : matchMedia("(prefers-color-scheme: dark)").matches;
+  const next = dark ? "light" : "dark";
+  applyTheme(next);
+  safeStore(() => localStorage.setItem("theme", next));
+};
+
+/* Suggestions */
+SUGGESTIONS.forEach(([label, q]) => {
+  const b = document.createElement("button");
+  b.className = "suggestion"; b.disabled = true;
+  b.innerHTML = `<small>${esc(label)}</small><span>${esc(q)}</span>`;
+  b.onclick = () => ask(q);
+  $("suggestions").appendChild(b);
+});
+
+function setReady(on) {
+  ready = on;
+  input.disabled = !on;
+  btn.disabled = !on || busy;
+  input.placeholder = on ? "Saisissez votre question" : "Chargement…";
+  document.querySelectorAll(".suggestion").forEach(b => b.disabled = !on || busy);
+}
+
+function scrollDown() { window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }); }
+
+function addRow(kind, html, extraClass = "") {
+  welcome.style.display = "none";
+  const row = document.createElement("div");
+  row.className = `row ${kind} ${extraClass}`.trim();
+  row.innerHTML = `<div class="bubble">${html}</div>`;
+  chat.appendChild(row);
+  scrollDown();
+  return row;
+}
+
+/* Statut du serveur */
+async function pollStatus() {
+  const badge = $("status"), text = $("status-text");
+  try {
+    const d = await (await fetch("/status")).json();
+    if (d.ready) { badge.className = "badge ready"; text.textContent = "En ligne · " + (d.model || ""); setReady(true); return; }
+    if (d.error) { badge.className = "badge error"; text.textContent = "Erreur de chargement"; text.title = d.error; return; }
+  } catch { /* serveur pas encore joignable */ }
+  setTimeout(pollStatus, 2000);
+}
+
+function renderSteps(steps) {
+  return steps.map((s, i) => {
+    const thought = String(s.thought || "").replace(/^\s*Thought:\s*/i, "").replace(/\n?\s*Action:.*$/s, "").trim();
+    const isFinal = s.tool === "final_answer";
+    const tool = s.tool ? `<span class="tool ${isFinal ? "final" : ""}">${esc(s.tool)}</span>` : '<span class="tool">format invalide</span>';
+    const arg = s.input && !isFinal ? ` <span class="step-time">« ${esc(s.input)} »</span>` : "";
+    return `<div class="step">
+      <div class="step-head"><b>Étape ${i + 1}</b>${tool}${arg}<span class="step-time">${esc(s.seconds)} s</span></div>
+      ${thought ? `<div class="thought">${esc(thought)}</div>` : ""}
+      ${s.observation ? `<div class="obs">${esc(s.observation)}</div>` : ""}
+    </div>`;
+  }).join("");
+}
+
+function renderAnswer(d) {
+  const sources = d.citations?.length
+    ? `<div class="sources"><span class="label">Sources :</span>${d.citations.map(c =>
+        `<button class="chip" data-doc="${esc(c)}" title="Lire la fiche">${esc(c)}</button>`).join("")}</div>` : "";
+  const cost = d.cost_usd != null ? `<span class="metric">$${esc(d.cost_usd)}</span>` : "";
+  const n = d.steps.length;
+  const details = `<details class="steps"><summary>Voir comment l'assistant a cherché</summary>
+      <div class="metrics">
+        <span class="metric">${esc(d.latency)} s</span>
+        <span class="metric">${n} étape${n > 1 ? "s" : ""}</span>
+        <span class="metric">${esc(d.tokens_in)} → ${esc(d.tokens_out)} tokens</span>${cost}
+        <span class="metric">statut : ${esc(d.status)}</span>
+      </div>
+      <div class="timeline">${renderSteps(d.steps)}</div></details>`;
+  return `<div class="answer">${esc(d.answer)}</div>${sources}${details}`;
+}
+
+async function ask(question) {
+  const q = (question ?? input.value).trim();
+  if (!q || !ready || busy) return;
+  input.value = ""; autosize();
+  busy = true; setReady(true);
+  addRow("user", esc(q));
+
+  const t0 = Date.now();
+  const loading = addRow("bot", `<div class="typing"><span class="dots"><i></i><i></i><i></i></span>Recherche dans les fiches en cours… <span class="timer" id="timer">0 s</span></div>`);
+  const tick = setInterval(() => { const t = $("timer"); if (t) t.textContent = Math.round((Date.now() - t0) / 1000) + " s"; }, 500);
+
+  try {
+    const r = await fetch("/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: q }) });
+    const d = await r.json();
+    loading.remove();
+    if (d.error) addRow("bot", `<div class="answer">${esc(d.error)}</div>`, "refus");
+    else addRow("bot", renderAnswer(d), d.answerable ? "" : "refus");
+  } catch {
+    loading.remove();
+    addRow("bot", '<div class="answer">Le serveur ne répond pas pour le moment.</div>', "refus");
+  } finally {
+    clearInterval(tick);
+    busy = false; setReady(true);
+    input.focus();
+  }
+}
+
+function autosize() {
+  input.style.height = "auto";
+  input.style.height = Math.max(52, Math.min(input.scrollHeight, 140)) + "px";
+  input.style.overflowY = input.scrollHeight > 140 ? "auto" : "hidden";
+}
+input.addEventListener("input", autosize);
+input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } });
+btn.addEventListener("click", () => ask());
+$("clear").onclick = () => { if (busy) return; chat.innerHTML = ""; welcome.style.display = ""; input.focus(); };
+$("nav-chat").onclick = () => { closeDrawer(); input.focus(); };
+
+/* ---------- Panneau Documents ---------- */
+const drawer = $("drawer"), scrim = $("scrim");
+const listView = $("doc-list-view"), docView = $("doc-view"), backBtn = $("doc-back"), drawerTitle = $("drawer-title");
+let docsLoaded = false, searchTimer = null;
+
+function openDrawer() { drawer.classList.add("open"); scrim.classList.add("open"); drawer.setAttribute("aria-hidden", "false"); }
+function closeDrawer() { drawer.classList.remove("open"); scrim.classList.remove("open"); drawer.setAttribute("aria-hidden", "true"); }
+
+function showList() {
+  listView.hidden = false; docView.hidden = true; backBtn.hidden = true;
+  drawerTitle.textContent = "Fiches sources";
+}
+
+async function loadDocs() {
+  const params = new URLSearchParams({ q: $("doc-q").value.trim(), theme: $("doc-theme").value });
+  try {
+    const d = await (await fetch("/api/docs?" + params)).json();
+    if (!docsLoaded) {
+      d.themes.forEach(t => { const o = document.createElement("option"); o.value = t; o.textContent = t; $("doc-theme").appendChild(o); });
+      docsLoaded = true;
+    }
+    $("doc-count").textContent = d.total > d.docs.length
+      ? `${d.total} fiches · affichage des ${d.docs.length} premières, affinez votre recherche`
+      : `${d.total} fiche${d.total > 1 ? "s" : ""}`;
+    $("doc-list").innerHTML = d.docs.map(x =>
+      `<li><button class="doc-item" data-doc="${esc(x.doc_id)}"><b>${esc(x.title)}</b><span>${esc(x.doc_id)} · ${esc(x.theme)} · mise à jour ${esc(x.date)}</span></button></li>`).join("");
+  } catch { $("doc-count").textContent = "Impossible de charger les fiches."; }
+}
+
+function renderDocText(text) {
+  let html = "", inList = false;
+  const closeList = () => { if (inList) { html += "</ul>"; inList = false; } };
+  for (const raw of String(text).split("\n")) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (line.startsWith("## ")) { closeList(); html += `<h3>${esc(line.slice(3))}</h3>`; }
+    else if (line.startsWith("- ")) { if (!inList) { html += "<ul>"; inList = true; } html += `<li>${esc(line.slice(2))}</li>`; }
+    else { closeList(); html += `<p>${esc(line)}</p>`; }
+  }
+  closeList();
+  return html;
+}
+
+async function openDoc(id) {
+  openDrawer();
+  listView.hidden = true; docView.hidden = false; backBtn.hidden = false;
+  drawerTitle.textContent = id;
+  docView.innerHTML = '<p class="doc-count">Chargement…</p>';
+  try {
+    const d = await (await fetch("/api/doc/" + encodeURIComponent(id))).json();
+    if (d.error) { docView.innerHTML = `<p class="doc-count">${esc(d.error)}</p>`; return; }
+    drawerTitle.textContent = d.title;
+    docView.innerHTML = `
+      <div class="doc-meta"><span class="chip">${esc(d.doc_id)}</span><span>${esc(d.theme)}</span><span>· mise à jour ${esc(d.date)}</span></div>
+      <p class="doc-count">${esc(d.fil_ariane)}</p>
+      <a class="doc-ext" href="${FICHE_URL(d.doc_id)}" target="_blank" rel="noopener noreferrer">Voir sur service-public.gouv.fr ↗</a>
+      <div class="doc-text">${renderDocText(d.text)}</div>`;
+    docView.scrollTop = 0;
+  } catch { docView.innerHTML = '<p class="doc-count">Impossible de charger la fiche.</p>'; }
+}
+
+$("open-docs").onclick = () => { showList(); openDrawer(); if (!$("doc-list").children.length) loadDocs(); };
+$("drawer-close").onclick = closeDrawer;
+scrim.onclick = closeDrawer;
+backBtn.onclick = showList;
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+$("doc-q").addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(loadDocs, 250); });
+$("doc-theme").addEventListener("change", loadDocs);
+document.addEventListener("click", e => { const t = e.target.closest("[data-doc]"); if (t) openDoc(t.dataset.doc); });
+
+pollStatus();
+</script>
+</body>
+</html>

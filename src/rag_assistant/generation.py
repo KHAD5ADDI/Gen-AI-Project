@@ -52,9 +52,6 @@ def parse_and_validate(text: str, allowed_ids: set[str]) -> Reponse:
         raise ValueError("réponse sans citation : citer les doc_id ou mettre answerable à false")
     if not reponse.answerable:
         reponse.citations = []
-    else:
-        seen = set()
-        reponse.citations = [c for c in reponse.citations if not (c in seen or seen.add(c))]
     return reponse
 
 def generate(llm, question: str, chunks, trace: Trace, max_attempts: int = 2) -> Reponse:
