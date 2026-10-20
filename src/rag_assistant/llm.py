@@ -59,7 +59,8 @@ class OpenRouterLLM:
             raise RuntimeError("OPENROUTER_API_KEY manque dans l'environnement ou le fichier .env.")
         self.provider = "openrouter"
         self.name = name
-        self.client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=key, timeout=LLM_TIMEOUT)
+        # Les limites temporaires du pool partagé justifient des tentatives supplémentaires.
+        self.client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=key, timeout=LLM_TIMEOUT, max_retries=8)
 
     def _chat(self, system, user, max_new_tokens, stop):
         kwargs = {
@@ -71,7 +72,8 @@ class OpenRouterLLM:
         if stop:
             kwargs["stop"] = ["Observation:"]
         start = time.perf_counter()
-        response = self.client.chat.completions.create(**kwargs)
+        # Même protocole ReAct pour chaque modèle, sans tokens de raisonnement cachés (profondeur et coût).
+        response = self.client.chat.completions.create(**kwargs, extra_body={"reasoning": {"enabled": False}})
         seconds = time.perf_counter() - start
         content = response.choices[0].message.content or ""
         text = content.split("Observation:")[0].strip() if stop else content.strip()

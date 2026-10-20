@@ -32,6 +32,7 @@ LOCAL_PRICE = (1.0, 5.0)
 # Modèles API (OpenRouter) : prix réels, relevés sur https://openrouter.ai/api/v1/models le 19/10/2026.
 API_PRICES = {
     "mistralai/mistral-small-2603": (0.15, 0.60),  # agent API
+    "deepseek/deepseek-v4.1-flash": (0.033, 0.080),  # générateur API (modèle du lab 08)
     "google/gemini-2.5-flash": (0.30, 2.50),  # juge (autre famille que les générateurs)
 }
 

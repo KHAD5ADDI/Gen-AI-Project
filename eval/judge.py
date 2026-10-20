@@ -39,7 +39,10 @@ def make_client():
     load_dotenv()
     if not os.environ.get("OPENROUTER_API_KEY"):
         raise RuntimeError("Clé OPENROUTER_API_KEY absente : renseignez-la dans .env.")
-    return OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ["OPENROUTER_API_KEY"], timeout=60)
+    # Les limites temporaires du pool partagé justifient des tentatives supplémentaires.
+    return OpenAI(
+        base_url="https://openrouter.ai/api/v1", api_key=os.environ["OPENROUTER_API_KEY"], timeout=60, max_retries=8
+    )
 
 
 def sources_text(result, max_chars=12000):

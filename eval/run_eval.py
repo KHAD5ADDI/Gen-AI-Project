@@ -24,6 +24,7 @@ from rag_assistant.agent import answer
 from rag_assistant.ingest import IngestionPipeline
 from rag_assistant.llm import get_llm
 from rag_assistant.retrieval import HybridRetriever
+from rag_assistant.schemas import Reponse
 from rag_assistant.tracing import Trace, cout_usd
 
 
@@ -67,6 +68,18 @@ def report(question, result, trace, latency, llm):
     }
 
 
+def error_report(question, error, latency, llm):
+    """Prépare une ligne au format normal après un échec du modèle."""
+    result = {
+        "reponse": Reponse(answer=f"Erreur d'appel au modèle : {type(error).__name__}", answerable=False),
+        "retrieved": [], "status": "erreur", "iterations": 0, "invalid_calls": 0,
+        "steps": [], "tokens_in": 0, "tokens_out": 0, "seconds": latency,
+    }
+    trace = Trace()
+    trace.record(result)
+    return report(question, result, trace, latency, llm)
+
+
 def print_summary(results):
     """Affiche les agrégats de la boucle ReAct."""
     iterations = [item["iterations"] for item in results]
@@ -102,11 +115,17 @@ def main():
     with (output / "results.jsonl").open("w", encoding="utf-8") as destination:
         for question in questions:
             start = time.perf_counter()
-            result = answer(llm, retriever, question["question"])
-            latency = time.perf_counter() - start
-            trace = Trace()
-            trace.record(result)
-            item = report(question, result, trace, latency, llm)
+            try:
+                result = answer(llm, retriever, question["question"])
+            except Exception as error:  # noqa: BLE001  (une question échouée ne doit pas arrêter l'évaluation)
+                latency = time.perf_counter() - start
+                print(f"{question['id']} : erreur d'appel au modèle ({type(error).__name__})")
+                item = error_report(question, error, latency, llm)
+            else:
+                latency = time.perf_counter() - start
+                trace = Trace()
+                trace.record(result)
+                item = report(question, result, trace, latency, llm)
             destination.write(json.dumps(item, ensure_ascii=False) + "\n")
             destination.flush()
             results.append(item)
