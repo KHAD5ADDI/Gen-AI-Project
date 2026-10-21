@@ -110,10 +110,10 @@ BM25 and dense retrieval with `intfloat/multilingual-e5-small` in Chroma (cosine
 | dense | 33 | 0.879 | 0.765 | 0.779 |
 | bm25 | 33 | 0.856 | 0.687 | 0.709 |
 | hybrid (RRF) | 33 | 0.909 | 0.833 | 0.832 |
-| hybrid + rerank | 33 | 0.985 | 0.895 | 0.908 |
-| hybrid + rerank + theme filter | 33 | 0.985 | 0.915 | 0.924 |
+| hybrid + rerank | 33 | 0.985 | 0.910 | 0.920 |
+| hybrid + rerank + theme filter | 33 | 0.985 | 0.930 | 0.935 |
 
-Source: [retrieval_summary.csv](eval/retrieval_summary.csv). The `gold_docs` were completed in step 4; see the [data card](DATA_CARD.md#golden-set).
+Source: [retrieval_summary.csv](eval/retrieval_summary.csv), from the local rerun of 21 October 2026 (see [Retrieval: local reproduction](#retrieval-local-reproduction-21-october-2026)); the previous run gave MRR 0.895 / nDCG@5 0.908 with reranking and 0.915 / 0.924 with the theme filter. The `gold_docs` were completed in step 4; see the [data card](DATA_CARD.md#golden-set).
 
 Filters are applied in ChromaDB using `where` on the `theme` and `date_num` metadata, as well as in BM25. The row with the theme filter is an oracle measurement: the user selects the correct theme in the interface. The date filter is covered by tests but is not measured here: no golden-set question depends on the date, and 502 of the 526 fact sheets are dated 2025 or 2026. Chroma's HNSW index is approximate: after rebuilding it to add `date_num`, 2 of 33 questions changed rank (q010 in dense retrieval, and q012 moved from rank 1 to rank 2 after reranking); final Recall@5 remained 0.985, while BM25, which does not depend on the index, was unchanged. The agent results below were measured on the previous index, and this difference did not warrant rerunning them.
 
@@ -191,6 +191,34 @@ The intervals for 1B and DeepSeek do not contain 0; the interval for 3B does.
 - Expected refusals are correct for every model (7/7), owing to final validation and the refusal scoring rule.
 - The `test` score exceeds the overall score for 8B and 3B but is lower for 1B; the prompt was tuned on `dev`.
 - There is no consistent theme effect despite the larger housing corpus (333 fact sheets versus 193). Judge scores for the 20 housing questions versus the 13 papers and citizenship questions (based on the theme of the first expected fact sheet in [per_question.csv](eval/per_question.csv)) are 0.325 versus 0.192 for 8B, 0.150 versus 0.346 for 3B, and 1.000 versus 0.962 for DeepSeek. The samples are too small to establish a difference.
+
+### Retrieval: local reproduction (21 October 2026)
+
+The retrieval evaluation was rerun from scratch on a second machine (Intel Core i7-1250U laptop, CPU only), following the setup steps of this README: `uv sync`, index rebuilt with `scripts/run_ingest.py` (15,785 passages, about one hour of encoding), then `eval/eval_retrieval.py`. No LLM is involved.
+
+| Configuration | Questions | Recall@5 | MRR | nDCG@5 | MRR / nDCG@5 previous run |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| dense | 33 | 0.879 | 0.765 | 0.779 | 0.765 / 0.779 |
+| bm25 | 33 | 0.856 | 0.687 | 0.709 | 0.687 / 0.709 |
+| hybrid (RRF) | 33 | 0.909 | 0.833 | 0.832 | 0.833 / 0.832 |
+| hybrid + rerank | 33 | 0.985 | 0.910 | 0.920 | 0.895 / 0.908 |
+| hybrid + rerank + theme filter | 33 | 0.985 | 0.930 | 0.935 | 0.915 / 0.924 |
+
+Recall@5 and MRR by question type:
+
+| Type | Questions | dense | bm25 | hybrid (RRF) | hybrid + rerank | + theme filter |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Simple (Recall@5) | 20 | 0.825 | 0.888 | 0.875 | 1.000 | 1.000 |
+| Simple (MRR) | 20 | 0.671 | 0.671 | 0.808 | 0.852 | 0.885 |
+| Conditional (Recall@5) | 11 | 0.955 | 0.773 | 0.955 | 0.955 | 0.955 |
+| Conditional (MRR) | 11 | 0.894 | 0.659 | 0.848 | 1.000 | 1.000 |
+| Injection (Recall@5 and MRR) | 2 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 |
+
+- The results are reproduced: dense, BM25 and RRF give exactly the same values, and Recall@5 after reranking is the same (0.985). MRR and nDCG@5 after reranking are slightly higher, most likely because of a different library version for the reranker after `uv sync`.
+- Reranking brings the largest gain (Recall@5 from 0.909 to 0.985); on simple questions the expected fact sheet is always in the top 5.
+- BM25 alone is weak on conditional questions (Recall@5 0.773), which are phrased differently from the fact sheets; dense retrieval compensates, which justifies the hybrid design.
+- After reranking, every question has at least one expected fact sheet in the top 5. The 0.955 on conditional questions comes from one question with two expected fact sheets, only one of which is retrieved.
+- The theme-filter row is an oracle (the user picks the right theme); the figure to quote is hybrid + rerank.
 
 To reproduce a comparison, choose a separate output directory for each configuration, then run the judge and summary:
 
