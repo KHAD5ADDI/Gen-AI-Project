@@ -54,7 +54,7 @@ def load_texts():
     return dict(zip(rows["doc_id"], rows["text"]))
 
 
-def make_tools(retriever, seen):
+def make_tools(retriever, seen, theme=None, since=None):
     """Crée les outils et garde l'ordre des fiches réellement consultées."""
 
     def remember(doc_id):
@@ -65,7 +65,9 @@ def make_tools(retriever, seen):
         if not query.strip():
             raise ValueError("requête vide")
         blocks = []
-        for chunk in retriever.search(query):
+        chunks = (retriever.search(query) if theme is None and since is None
+                  else retriever.search(query, theme=theme, since=since))
+        for chunk in chunks:
             doc_id = chunk["doc_id"]
             remember(doc_id)
             section = f" > {chunk['section']}" if chunk.get("section") else ""

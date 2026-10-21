@@ -36,6 +36,8 @@ banks==2.5.1
     # via llama-index-core
 bcrypt==5.0.0
     # via chromadb
+blinker==1.9.0
+    # via flask
 build==1.6.1
     # via chromadb
 certifi==2026.10.18
@@ -50,6 +52,7 @@ chromadb==1.5.9
     # via rag-assistant
 click==8.5.0
     # via
+    #   flask
     #   huggingface-hub
     #   nltk
     #   streamlit
@@ -96,6 +99,8 @@ filetype==1.2.0
     # via
     #   banks
     #   llama-index-core
+flask==3.1.3
+    # via rag-assistant
 flatbuffers==25.12.19
     # via onnxruntime
 frozenlist==1.8.0
@@ -155,11 +160,14 @@ idna==3.20
 importlib-resources==7.1.0
     # via chromadb
 itsdangerous==2.2.0
-    # via streamlit
+    # via
+    #   flask
+    #   streamlit
 jinja2==3.1.6
     # via
     #   altair
     #   banks
+    #   flask
     #   pydeck
     #   torch
 jiter==0.17.0
@@ -200,7 +208,10 @@ llama-index-workflows==2.26.0
 markdown-it-py==4.2.0
     # via rich
 markupsafe==3.0.4
-    # via jinja2
+    # via
+    #   flask
+    #   jinja2
+    #   werkzeug
 marshmallow==3.26.2
     # via dataclasses-json
 mdurl==0.1.2
@@ -571,6 +582,8 @@ websockets==17.2
     # via
     #   streamlit
     #   uvicorn
+werkzeug==3.1.9
+    # via flask
 wrapt==2.5.1
     # via
     #   deprecated
